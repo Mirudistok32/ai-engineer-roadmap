@@ -1,0 +1,32 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #0a0e14;
+  color: #e6edf3;
+  font-family:
+    'Source Sans 3', 'Source Sans Pro', ui-sans-serif, system-ui, sans-serif;
+  color-scheme: dark;
+}
+
+#root {
+  min-width: 0;
+}
+
+button {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+}

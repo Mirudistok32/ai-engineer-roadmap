@@ -1,0 +1,1889 @@
+/* AI Engineer Roadmap — dark engineering atlas (HUD) */
+
+.atlas {
+  --atlas-bg: #0a0e14;
+  --atlas-bg-elevated: #10151d;
+  --atlas-surface: #151b25;
+  --atlas-ink: #e6edf3;
+  --atlas-line: #1f2937;
+  --atlas-line-strong: #2c3a4d;
+  --atlas-text: #e6edf3;
+  --atlas-dim: #9aa7b5;
+  --atlas-faint: #64748b;
+  --atlas-accent: #38d9c0;
+  --atlas-accent-soft: color-mix(in oklab, #38d9c0 14%, transparent);
+  --atlas-accent-contrast: #0a1210;
+  --atlas-violet: #a78bfa;
+  --atlas-think: #38d9c0;
+  --atlas-build: #7c9cff;
+  --atlas-operate: #f0b429;
+  --atlas-ai: #5eb8ff;
+  --atlas-danger: #f87171;
+  --atlas-phase-1: #38d9c0;
+  --atlas-phase-2: #7c9cff;
+  --atlas-phase-3: #a78bfa;
+  --atlas-radius: 0.75rem;
+  --atlas-radius-sm: 0.5rem;
+  --atlas-font:
+    'Source Sans 3', 'Source Sans Pro', ui-sans-serif, system-ui, sans-serif;
+  --atlas-display:
+    'Outfit', 'Source Sans 3', ui-sans-serif, system-ui, sans-serif;
+  --atlas-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --atlas-shadow: 0 12px 32px -16px rgb(0 0 0 / 55%);
+  --atlas-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --atlas-grid: color-mix(in oklab, #e6edf3 4.5%, transparent);
+
+  position: relative;
+  isolation: isolate;
+  min-height: 100dvh;
+  color: var(--atlas-text);
+  font-family: var(--atlas-font);
+  color-scheme: dark;
+  background-color: var(--atlas-bg);
+  background-image:
+    radial-gradient(
+      1100px 480px at 72% -8%,
+      color-mix(in oklab, #38d9c0 8%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      800px 420px at 8% 12%,
+      color-mix(in oklab, #a78bfa 6%, transparent),
+      transparent 62%
+    ),
+    linear-gradient(var(--atlas-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--atlas-grid) 1px, transparent 1px);
+  background-size:
+    auto,
+    auto,
+    36px 36px,
+    36px 36px;
+}
+
+.atlas::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
+}
+
+.atlas > * {
+  position: relative;
+  z-index: 1;
+}
+
+.atlas * {
+  box-sizing: border-box;
+}
+
+.shell {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  width: min(100%, 92rem);
+  margin-inline: auto;
+  min-width: 0;
+  padding: max(1rem, env(safe-area-inset-top))
+    max(1rem, env(safe-area-inset-right)) max(3rem, env(safe-area-inset-bottom))
+    max(1rem, env(safe-area-inset-left));
+}
+
+@media (min-width: 1100px) {
+  .shell {
+    grid-template-columns: 11rem minmax(0, 1fr);
+    gap: 1.5rem;
+    padding-inline: max(1.5rem, env(safe-area-inset-right))
+      max(1.5rem, env(safe-area-inset-left));
+  }
+}
+
+.nav {
+  display: none;
+}
+
+@media (min-width: 1100px) {
+  .nav {
+    display: block;
+    position: sticky;
+    top: 1rem;
+    align-self: start;
+    max-height: calc(100dvh - 2rem);
+    overflow: auto;
+    padding: 0.75rem 0;
+  }
+}
+
+.navMobile {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  gap: 0.35rem;
+  overflow-x: auto;
+  max-width: 100%;
+  min-width: 0;
+  padding: 0.5rem 0;
+  margin-bottom: 0.5rem;
+  background: color-mix(in oklab, var(--atlas-bg) 92%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--atlas-line);
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (min-width: 1100px) {
+  .navMobile {
+    display: none;
+  }
+}
+
+.navLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  min-height: 44px;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  color: var(--atlas-faint);
+  font-family: var(--atlas-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.55rem 0.7rem;
+  border-radius: 0.35rem;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+@media (min-width: 1100px) {
+  .navLink {
+    display: block;
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+.navLink:hover,
+.navLink:focus-visible {
+  color: var(--atlas-text);
+  outline: 2px solid var(--atlas-accent);
+  outline-offset: 2px;
+}
+
+.navLinkActive {
+  color: var(--atlas-accent);
+  background: var(--atlas-accent-soft);
+}
+
+.main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2.5rem, 7vw, 5rem);
+}
+
+.section {
+  scroll-margin-top: 5.5rem;
+  min-width: 0;
+}
+
+.kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: var(--atlas-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--atlas-dim);
+  margin: 0 0 0.85rem;
+}
+
+.kicker::before {
+  content: '';
+  width: 1.5rem;
+  height: 1px;
+  background: var(--atlas-line-strong);
+  flex-shrink: 0;
+}
+
+.kicker b {
+  color: var(--atlas-accent);
+  font-weight: 600;
+}
+
+.brand {
+  margin: 0;
+  font-family: var(--atlas-display);
+  font-size: clamp(2.6rem, 9vw, 5.2rem);
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+  font-weight: 800;
+  color: var(--atlas-ink);
+  text-shadow: 0 0 40px
+    color-mix(in oklab, var(--atlas-accent) 28%, transparent);
+}
+
+.display {
+  margin: 0;
+  font-family: var(--atlas-display);
+  font-size: clamp(2rem, 6vw, 3.4rem);
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+  font-weight: 700;
+}
+
+.lead {
+  margin: 1rem 0 0;
+  max-width: 40rem;
+  font-size: clamp(1.05rem, 2.2vw, 1.3rem);
+  line-height: 1.5;
+  color: var(--atlas-dim);
+}
+
+.sublead {
+  margin: 0.75rem 0 0;
+  max-width: 40rem;
+  color: var(--atlas-faint);
+  line-height: 1.55;
+}
+
+.sectionTitle {
+  margin: 0 0 0.5rem;
+  font-family: var(--atlas-display);
+  font-size: clamp(1.45rem, 3.5vw, 2.1rem);
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  font-weight: 700;
+}
+
+.sectionLead {
+  margin: 0 0 1.5rem;
+  max-width: 40rem;
+  color: var(--atlas-dim);
+  line-height: 1.5;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 960px) {
+  .stats {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+.stat {
+  border: 1px solid var(--atlas-line);
+  border-radius: var(--atlas-radius);
+  padding: 1rem;
+  background: var(--atlas-surface);
+  box-shadow: var(--atlas-shadow);
+}
+
+.statValue {
+  display: block;
+  font-family: var(--atlas-mono);
+  font-size: clamp(1.4rem, 3vw, 1.85rem);
+  color: var(--atlas-text);
+}
+
+.statLabel {
+  display: block;
+  margin-top: 0.35rem;
+  font-family: var(--atlas-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  color: var(--atlas-faint);
+}
+
+.journey {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+
+.chip {
+  font-family: var(--atlas-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.65rem;
+  border-radius: 0.35rem;
+  border: 1px solid var(--atlas-line);
+  color: var(--atlas-dim);
+  background: color-mix(in oklab, var(--atlas-surface) 80%, transparent);
+}
+
+.progressGrid {
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 1.25rem;
+}
+
+.progressRow {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.progressMeta {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--atlas-mono);
+  font-size: 0.72rem;
+  color: var(--atlas-dim);
+}
+
+.barTrack {
+  height: 0.45rem;
+  border-radius: 0.25rem;
+  background: color-mix(in oklab, var(--atlas-line) 70%, transparent);
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--atlas-accent), var(--atlas-ai));
+}
+
+.panel {
+  position: relative;
+  border: 1px solid var(--atlas-line);
+  border-radius: var(--atlas-radius);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.035), transparent 42%),
+    color-mix(in oklab, var(--atlas-surface) 78%, transparent);
+  padding: clamp(1rem, 2.5vw, 1.35rem);
+  box-shadow: var(--atlas-shadow);
+  min-width: 0;
+}
+
+.panelGlow {
+  box-shadow: var(--atlas-shadow);
+  border-color: color-mix(in oklab, var(--atlas-accent) 38%, var(--atlas-line));
+}
+
+.hudTicks::before,
+.hudTicks::after {
+  content: '';
+  position: absolute;
+  width: 0.7rem;
+  height: 0.7rem;
+  border-color: color-mix(
+    in oklab,
+    var(--atlas-phase, var(--atlas-accent)) 70%,
+    transparent
+  );
+  border-style: solid;
+  pointer-events: none;
+}
+
+.hudTicks::before {
+  top: 0.45rem;
+  left: 0.45rem;
+  border-width: 1.5px 0 0 1.5px;
+}
+
+.hudTicks::after {
+  right: 0.45rem;
+  bottom: 0.45rem;
+  border-width: 0 1.5px 1.5px 0;
+}
+
+.grid2 {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 800px) {
+  .grid2 {
+    grid-template-columns: 1.2fr 0.8fr;
+  }
+}
+
+.grid3 {
+  display: grid;
+  gap: 0.85rem;
+}
+
+@media (min-width: 800px) {
+  .grid3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.pillar {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.pillarHead {
+  font-family: var(--atlas-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.think {
+  color: var(--atlas-think);
+}
+
+.build {
+  color: var(--atlas-build);
+}
+
+.operate {
+  color: var(--atlas-operate);
+}
+
+.ai {
+  color: var(--atlas-ai);
+}
+
+.nodeButton {
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--atlas-line);
+  border-radius: 0.45rem;
+  background: var(--atlas-bg-elevated);
+  color: inherit;
+  padding: 0.85rem 0.95rem;
+  min-height: 44px;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+.nodeButton:hover {
+  border-color: var(--atlas-line-strong);
+}
+
+.nodeButton:focus-visible {
+  outline: 2px solid var(--atlas-accent);
+  outline-offset: 2px;
+}
+
+.nodeButtonActive {
+  border-color: color-mix(in oklab, var(--atlas-accent) 55%, transparent);
+  background: var(--atlas-accent-soft);
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .nodeButton:hover {
+    transform: translateY(-1px);
+  }
+}
+
+.nodeTitle {
+  margin: 0;
+  font-family: var(--atlas-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  overflow-wrap: anywhere;
+}
+
+.nodeShort {
+  margin: 0.35rem 0 0;
+  color: var(--atlas-faint);
+  font-size: 0.9rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.centerEngineer {
+  display: grid;
+  place-items: center;
+  min-height: 5.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--atlas-line-strong);
+  border-radius: 999px;
+  background: var(--atlas-accent-soft);
+  font-family: var(--atlas-mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.flow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.flowRow {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.35rem;
+}
+
+@media (min-width: 720px) {
+  .flowRow {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+  }
+}
+
+.flowStep,
+.flowAi {
+  border: 1px solid var(--atlas-line-strong);
+  border-radius: var(--atlas-radius-sm);
+  padding: 0.7rem 0.85rem;
+  font-family: var(--atlas-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: var(--atlas-bg-elevated);
+}
+
+.flowStep {
+  color: var(--atlas-dim);
+}
+
+.flowAi {
+  color: var(--atlas-violet);
+  border-color: color-mix(in oklab, var(--atlas-violet) 40%, transparent);
+  background: color-mix(in oklab, var(--atlas-violet) 10%, transparent);
+}
+
+.flowArrow {
+  text-align: center;
+  color: var(--atlas-accent);
+  font-family: var(--atlas-mono);
+  font-size: 0.75rem;
+}
+
+/* Pipeline nodes (ai-learn style) */
+.fnode {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid var(--atlas-line-strong);
+  border-radius: 0.55rem;
+  background: var(--atlas-bg-elevated);
+  font-family: var(--atlas-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--atlas-dim);
+  text-align: center;
+}
+
+.fnodeAccent {
+  color: var(--atlas-accent);
+  border-color: color-mix(in oklab, var(--atlas-accent) 50%, transparent);
+  background: var(--atlas-accent-soft);
+}
+
+.fnodeViolet {
+  color: var(--atlas-violet);
+  border-color: color-mix(in oklab, var(--atlas-violet) 45%, transparent);
+  background: color-mix(in oklab, var(--atlas-violet) 12%, transparent);
+}
+
+.fnodeMuted {
+  border-style: dashed;
+  opacity: 0.72;
+}
+
+.pipeFlow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.pipeArr {
+  width: 1.25rem;
+  height: 2px;
+  background: color-mix(in oklab, var(--atlas-accent) 55%, transparent);
+  position: relative;
+  flex-shrink: 0;
+}
+
+.pipeArr::after {
+  content: '';
+  position: absolute;
+  right: -2px;
+  top: 50%;
+  border: 4px solid transparent;
+  border-left-color: var(--atlas-accent);
+  transform: translateY(-50%);
+}
+
+.takeaway {
+  margin-top: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: var(--atlas-radius-sm);
+  border: 1px solid color-mix(in oklab, var(--atlas-accent) 28%, transparent);
+  background: linear-gradient(
+    90deg,
+    color-mix(in oklab, var(--atlas-accent) 12%, transparent),
+    color-mix(in oklab, var(--atlas-violet) 6%, transparent)
+  );
+}
+
+.takeawayTag {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-family: var(--atlas-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  color: var(--atlas-accent);
+}
+
+.takeaway p {
+  margin: 0;
+  color: var(--atlas-dim);
+  line-height: 1.5;
+  font-size: 0.92rem;
+}
+
+.note {
+  margin: 1rem 0 0;
+  padding: 0.85rem 1rem;
+  border-left: 2px solid var(--atlas-line-strong);
+  font-family: var(--atlas-mono);
+  font-size: 0.78rem;
+  color: var(--atlas-faint);
+  line-height: 1.65;
+  max-width: 72ch;
+}
+
+.chain {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.chainStep {
+  position: relative;
+  padding: 0.7rem 0.85rem;
+  border-left: 3px solid var(--atlas-accent);
+  background: color-mix(in oklab, var(--atlas-bg) 70%, var(--atlas-surface));
+  font-family: var(--atlas-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.03em;
+}
+
+.month {
+  display: grid;
+  gap: 1rem;
+}
+
+.monthHead {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  align-items: baseline;
+}
+
+.monthNum {
+  font-family: var(--atlas-mono);
+  color: var(--atlas-accent);
+  letter-spacing: 0.1em;
+}
+
+.themeGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+@media (min-width: 720px) {
+  .themeGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.topicList {
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.topic {
+  font-size: 0.78rem;
+  color: var(--atlas-dim);
+  border: 1px solid var(--atlas-line);
+  border-radius: 0.35rem;
+  padding: 0.25rem 0.45rem;
+  background: var(--atlas-bg);
+}
+
+.mission {
+  border: 1px solid color-mix(in oklab, var(--atlas-operate) 35%, transparent);
+  border-radius: var(--atlas-radius);
+  padding: 1rem;
+  background: color-mix(in oklab, var(--atlas-operate) 6%, transparent);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.missionBoss {
+  border-color: color-mix(in oklab, var(--atlas-ai) 40%, transparent);
+  background: color-mix(in oklab, var(--atlas-ai) 7%, transparent);
+}
+
+.missionCode {
+  font-family: var(--atlas-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  color: var(--atlas-operate);
+  margin: 0 0 0.35rem;
+}
+
+.missionBoss .missionCode {
+  color: var(--atlas-ai);
+}
+
+.checklist {
+  margin: 0.5rem 0 0;
+  padding-left: 1.1rem;
+  color: var(--atlas-dim);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.checklist strong {
+  color: var(--atlas-text);
+  font-weight: 600;
+}
+
+.ladder {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.ladderStep {
+  padding: 0.75rem 0.9rem;
+  border: 1px solid var(--atlas-line);
+  border-radius: 0.45rem;
+  font-family: var(--atlas-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  background: var(--atlas-bg);
+}
+
+.ladderStepDim {
+  opacity: 0.45;
+}
+
+.depthTabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.85rem 0;
+}
+
+.depthTab {
+  border: 1px solid var(--atlas-line);
+  background: var(--atlas-surface);
+  color: var(--atlas-dim);
+  border-radius: 0.35rem;
+  padding: 0.45rem 0.7rem;
+  min-height: 44px;
+  font-family: var(--atlas-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+}
+
+.depthTabActive {
+  color: var(--atlas-text);
+  border-color: var(--atlas-accent);
+  background: var(--atlas-accent-soft);
+}
+
+.depthTab:focus-visible {
+  outline: 2px solid var(--atlas-accent);
+  outline-offset: 2px;
+}
+
+.flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.flag {
+  font-family: var(--atlas-mono);
+  font-size: 0.75rem;
+  color: var(--atlas-danger);
+  border: 1px solid color-mix(in oklab, var(--atlas-danger) 35%, transparent);
+  background: color-mix(in oklab, var(--atlas-danger) 8%, transparent);
+  border-radius: 0.35rem;
+  padding: 0.45rem 0.65rem;
+}
+
+.quote {
+  margin: 0;
+  font-family: var(--atlas-display);
+  font-size: clamp(1.35rem, 3.5vw, 2rem);
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+  max-width: 40rem;
+}
+
+.ctaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.button,
+.buttonGhost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.7rem 1.1rem;
+  border-radius: 0.45rem;
+  font-family: var(--atlas-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.button {
+  color: var(--atlas-accent-contrast);
+  background: var(--atlas-accent);
+  border-color: color-mix(in oklab, var(--atlas-accent) 55%, transparent);
+}
+
+.button:hover {
+  filter: brightness(1.08);
+}
+
+.button:focus-visible,
+.buttonGhost:focus-visible {
+  outline: 2px solid var(--atlas-accent);
+  outline-offset: 2px;
+}
+
+.buttonGhost {
+  color: var(--atlas-text);
+  border-color: var(--atlas-line-strong);
+  background: color-mix(in oklab, var(--atlas-surface) 70%, transparent);
+}
+
+.buttonGhost:hover {
+  border-color: color-mix(in oklab, var(--atlas-accent) 45%, var(--atlas-line));
+  color: var(--atlas-accent);
+}
+
+.buttonDisabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.reveal {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .reveal {
+    opacity: 0;
+    transform: translateY(12px);
+    transition:
+      opacity 500ms ease,
+      transform 500ms ease;
+  }
+
+  .revealVisible {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.homeGrid {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 800px) {
+  .homeGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.skillStatus {
+  display: inline-block;
+  margin-top: 0.45rem;
+  font-family: var(--atlas-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--atlas-faint);
+}
+
+.detailList {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--atlas-dim);
+  line-height: 1.5;
+}
+
+.splitStack {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 800px) {
+  .splitStack {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.mono {
+  font-family: var(--atlas-mono);
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-bottom: 1rem;
+  color: var(--atlas-dim);
+  font-family: var(--atlas-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+}
+
+.backLink:hover,
+.backLink:focus-visible {
+  color: var(--atlas-accent);
+}
+
+.backLink:focus-visible {
+  outline: 2px solid var(--atlas-accent);
+  outline-offset: 3px;
+}
+
+.matrix {
+  width: 100%;
+  min-width: 36rem;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.matrix th,
+.matrix td {
+  border: 1px solid var(--atlas-line);
+  padding: 0.65rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.matrix th {
+  font-family: var(--atlas-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--atlas-faint);
+  background: var(--atlas-bg);
+}
+
+.matrix td:first-child {
+  font-family: var(--atlas-mono);
+  font-size: 0.78rem;
+}
+
+.scrollX {
+  overflow-x: auto;
+  max-width: 100%;
+  min-width: 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.agentGrid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+@media (min-width: 720px) {
+  .agentGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.phaseTag {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  font-family: var(--atlas-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--atlas-ai);
+}
+
+/* —— Infographics —— */
+
+.hero {
+  position: relative;
+  display: grid;
+  gap: 1.25rem;
+  padding-block: clamp(1rem, 3vw, 2.25rem) clamp(1.25rem, 4vw, 2.5rem);
+}
+
+.heroMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-family: var(--atlas-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--atlas-faint);
+}
+
+.heroMeta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.65rem;
+  border: 1px solid var(--atlas-line);
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--atlas-surface) 55%, transparent);
+}
+
+.heroMeta strong {
+  color: var(--atlas-accent);
+  font-weight: 600;
+}
+
+.heroFlow {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: 0.45rem;
+  margin-top: 0.5rem;
+  overflow-x: auto;
+  max-width: 100%;
+  min-width: 0;
+  padding-bottom: 0.35rem;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.heroFlowNode {
+  flex: 1 0 auto;
+  min-width: 7.5rem;
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--atlas-line-strong);
+  border-radius: var(--atlas-radius-sm);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in oklab, #e6edf3 6%, transparent),
+      transparent 70%
+    ),
+    var(--atlas-bg-elevated);
+  font-family: var(--atlas-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--atlas-text);
+  animation: atlasRise 0.7s var(--atlas-ease) both;
+}
+
+.heroFlowNode:nth-child(3) {
+  animation-delay: 0.08s;
+}
+.heroFlowNode:nth-child(5) {
+  animation-delay: 0.16s;
+}
+.heroFlowNode:nth-child(7) {
+  animation-delay: 0.24s;
+}
+.heroFlowNode:nth-child(9) {
+  animation-delay: 0.32s;
+}
+
+.heroFlowNodeAccent {
+  border-color: color-mix(in oklab, var(--atlas-accent) 65%, transparent);
+  color: var(--atlas-accent);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--atlas-accent) 18%, transparent),
+      transparent 72%
+    ),
+    var(--atlas-bg-elevated);
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--atlas-accent) 22%, transparent),
+    0 8px 24px -12px color-mix(in oklab, var(--atlas-accent) 45%, transparent);
+}
+
+.heroFlowNodeViolet {
+  border-color: color-mix(in oklab, var(--atlas-violet) 60%, transparent);
+  color: var(--atlas-violet);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--atlas-violet) 16%, transparent),
+      transparent 72%
+    ),
+    var(--atlas-bg-elevated);
+  box-shadow: 0 0 0 1px
+    color-mix(in oklab, var(--atlas-violet) 20%, transparent);
+}
+
+.heroFlowArrow {
+  align-self: center;
+  width: 1.4rem;
+  height: 2px;
+  flex: 0 0 auto;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in oklab, var(--atlas-accent) 70%, transparent)
+  );
+  position: relative;
+  animation: atlasDrawX 0.85s var(--atlas-ease) both;
+}
+
+.heroFlowArrow::after {
+  content: '';
+  position: absolute;
+  right: -1px;
+  top: 50%;
+  width: 0;
+  height: 0;
+  border: 4px solid transparent;
+  border-left-color: var(--atlas-accent);
+  transform: translateY(-50%);
+}
+
+.graphicBlock {
+  position: relative;
+  border: 1px solid var(--atlas-line);
+  border-radius: var(--atlas-radius);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.035), transparent 40%),
+    color-mix(in oklab, var(--atlas-surface) 72%, transparent);
+  padding: clamp(1rem, 2.5vw, 1.5rem);
+  box-shadow: var(--atlas-shadow);
+  overflow: hidden;
+  min-width: 0;
+}
+
+.graphicBlockElev {
+  background:
+    radial-gradient(
+      640px 280px at 50% 0%,
+      color-mix(
+        in oklab,
+        var(--atlas-glow, var(--atlas-accent)) 8%,
+        transparent
+      ),
+      transparent 70%
+    ),
+    linear-gradient(180deg, rgb(255 255 255 / 0.04), transparent 40%),
+    var(--atlas-bg-elevated);
+}
+
+.graphicHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.graphicCaption {
+  margin: 0.85rem 0 0;
+  color: var(--atlas-faint);
+  font-size: 0.85rem;
+  line-height: 1.45;
+  max-width: 42rem;
+}
+
+.spineTrack {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(7.5rem, 1fr);
+  gap: 0;
+  overflow-x: auto;
+  max-width: 100%;
+  min-width: 0;
+  padding-bottom: 0.35rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+.spineNode {
+  position: relative;
+  display: grid;
+  gap: 0.55rem;
+  justify-items: center;
+  text-align: center;
+  min-width: 0;
+  padding: 0.35rem 0.4rem 0.6rem;
+}
+
+.spineNode::before {
+  content: '';
+  position: absolute;
+  top: 1.05rem;
+  left: 0;
+  right: 50%;
+  height: 2px;
+  background: color-mix(in oklab, var(--atlas-accent) 45%, transparent);
+}
+
+.spineNode::after {
+  content: '';
+  position: absolute;
+  top: 1.05rem;
+  left: 50%;
+  right: 0;
+  height: 2px;
+  background: color-mix(in oklab, var(--atlas-accent) 45%, transparent);
+}
+
+.spineNode:first-child::before {
+  display: none;
+}
+
+.spineNode:last-child::after {
+  display: none;
+}
+
+.spineDot {
+  position: relative;
+  z-index: 1;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 50%;
+  border: 2px solid var(--atlas-accent);
+  background: var(--atlas-surface);
+  box-shadow: 0 0 0 4px var(--atlas-accent-soft);
+}
+
+.spineLabel {
+  font-family: var(--atlas-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  line-height: 1.3;
+  color: var(--atlas-dim);
+  text-transform: uppercase;
+}
+
+.spineIndex {
+  font-family: var(--atlas-mono);
+  font-size: 0.58rem;
+  color: var(--atlas-faint);
+}
+
+.phaseRoad {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 900px) {
+  .phaseRoad {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0;
+    align-items: stretch;
+  }
+}
+
+.phaseLane {
+  position: relative;
+  display: grid;
+  gap: 0.85rem;
+  padding: 1.1rem;
+  border: 1px solid var(--atlas-line);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.03), transparent 50%),
+    var(--atlas-bg-elevated);
+  min-width: 0;
+}
+
+@media (min-width: 900px) {
+  .phaseLane {
+    border-radius: 0;
+    border-right-width: 0;
+  }
+
+  .phaseLane:first-child {
+    border-radius: var(--atlas-radius) 0 0 var(--atlas-radius);
+  }
+
+  .phaseLane:last-child {
+    border-right-width: 1px;
+    border-radius: 0 var(--atlas-radius) var(--atlas-radius) 0;
+  }
+}
+
+.phaseLaneAccent1 {
+  border-top: 4px solid var(--atlas-phase-1);
+}
+
+.phaseLaneAccent2 {
+  border-top: 4px solid var(--atlas-phase-2);
+}
+
+.phaseLaneAccent3 {
+  border-top: 4px solid var(--atlas-phase-3);
+}
+
+.phaseLaneHead {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.phaseLaneCode {
+  font-family: var(--atlas-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--atlas-faint);
+}
+
+.phaseLaneTitle {
+  margin: 0;
+  font-family: var(--atlas-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.monthRail {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.25rem;
+}
+
+.monthTick {
+  aspect-ratio: 1;
+  min-height: 2rem;
+  border: 1px solid var(--atlas-line);
+  background: var(--atlas-surface);
+  font-family: var(--atlas-mono);
+  font-size: clamp(0.55rem, 2.4vw, 0.65rem);
+  display: grid;
+  place-items: center;
+  color: var(--atlas-faint);
+}
+
+.monthTickFill1 {
+  background: color-mix(in oklab, var(--atlas-phase-1) 18%, transparent);
+  border-color: color-mix(in oklab, var(--atlas-phase-1) 45%, transparent);
+  color: var(--atlas-phase-1);
+}
+
+.monthTickFill2 {
+  background: color-mix(in oklab, var(--atlas-phase-2) 16%, transparent);
+  border-color: color-mix(in oklab, var(--atlas-phase-2) 45%, transparent);
+  color: var(--atlas-phase-2);
+}
+
+.monthTickFill3 {
+  background: color-mix(in oklab, var(--atlas-phase-3) 16%, transparent);
+  border-color: color-mix(in oklab, var(--atlas-phase-3) 45%, transparent);
+  color: var(--atlas-phase-3);
+}
+
+.phaseEnter {
+  margin-top: auto;
+}
+
+.connector {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .connector {
+    display: block;
+    position: absolute;
+    top: 50%;
+    right: -0.55rem;
+    z-index: 2;
+    width: 1.1rem;
+    height: 1.1rem;
+    border-radius: 50%;
+    background: var(--atlas-surface);
+    border: 2px solid var(--atlas-accent);
+    transform: translateY(-50%);
+  }
+}
+
+.loopScene {
+  display: grid;
+  gap: 1.25rem;
+}
+
+@media (min-width: 880px) {
+  .loopScene {
+    grid-template-columns: minmax(16rem, 22rem) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.loopStageList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+}
+
+.loopStageChip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--atlas-line);
+  border-radius: 0.4rem;
+  background: var(--atlas-bg-elevated);
+  color: var(--atlas-dim);
+  font-family: var(--atlas-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.loopStageChipActive {
+  color: var(--atlas-accent);
+  border-color: color-mix(in oklab, var(--atlas-accent) 55%, transparent);
+  background: var(--atlas-accent-soft);
+}
+
+.loopStageChip:focus-visible {
+  outline: 2px solid var(--atlas-accent);
+  outline-offset: 2px;
+}
+
+.loopSvgWrap {
+  width: min(100%, 22rem);
+  margin-inline: auto;
+  aspect-ratio: 1;
+  min-width: 0;
+}
+
+.loopSvg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.loopSeg {
+  fill: none;
+  stroke-width: 18;
+  stroke-linecap: butt;
+  cursor: pointer;
+  transition:
+    stroke 160ms ease,
+    opacity 160ms ease;
+  opacity: 0.55;
+  /* enlarge tap area beyond thin stroke */
+  paint-order: stroke;
+}
+
+.loopSegActive {
+  opacity: 1;
+  stroke-width: 22;
+}
+
+.loopSeg:focus-visible {
+  outline: none;
+}
+
+.loopHub {
+  fill: var(--atlas-surface);
+  stroke: var(--atlas-line-strong);
+  stroke-width: 2;
+}
+
+.loopHubText {
+  fill: var(--atlas-text);
+  font-family: var(--atlas-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-anchor: middle;
+}
+
+.loopLabel {
+  fill: var(--atlas-dim);
+  font-family: var(--atlas-mono);
+  font-size: 8.5px;
+  letter-spacing: 0.04em;
+  text-anchor: middle;
+  pointer-events: none;
+}
+
+.loopLabelActive {
+  fill: var(--atlas-accent);
+  font-weight: 600;
+}
+
+.layerMap {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+@media (min-width: 640px) {
+  .layerMap {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 960px) {
+  .layerMap {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.layerTile {
+  min-height: 4.5rem;
+  display: grid;
+  align-content: space-between;
+  gap: 0.35rem;
+  padding: 0.7rem 0.75rem;
+  border: 1px solid var(--atlas-line);
+  border-radius: 0.4rem;
+  background: var(--atlas-bg);
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    opacity 160ms ease;
+}
+
+.layerTileOn {
+  background: var(--atlas-accent-soft);
+  border-color: color-mix(in oklab, var(--atlas-accent) 45%, transparent);
+}
+
+.layerTileOff {
+  opacity: 0.38;
+}
+
+.layerTile:focus-visible {
+  outline: 2px solid var(--atlas-accent);
+  outline-offset: 2px;
+}
+
+.layerTileLabel {
+  font-family: var(--atlas-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.layerTileBar {
+  height: 4px;
+  border-radius: 2px;
+  background: color-mix(in oklab, var(--atlas-accent) 55%, transparent);
+}
+
+.spineFlow {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 900px) {
+  .spineFlow {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.spineColumn {
+  display: grid;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.spineColumnTitle {
+  margin: 0;
+  font-family: var(--atlas-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--atlas-faint);
+}
+
+.spineSteps {
+  display: grid;
+  gap: 0;
+}
+
+.spineStep {
+  position: relative;
+  padding: 0.55rem 0.7rem 0.55rem 1.55rem;
+  border: 1px solid var(--atlas-line);
+  border-bottom-width: 0;
+  background: var(--atlas-surface);
+  font-family: var(--atlas-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
+}
+
+.spineStep:first-child {
+  border-radius: 0.4rem 0.4rem 0 0;
+}
+
+.spineStep:last-child {
+  border-bottom-width: 1px;
+  border-radius: 0 0 0.4rem 0.4rem;
+}
+
+.spineStep::before {
+  content: '';
+  position: absolute;
+  left: 0.65rem;
+  top: 50%;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: var(--atlas-accent);
+  transform: translateY(-50%);
+}
+
+.spineStep::after {
+  content: '';
+  position: absolute;
+  left: 0.82rem;
+  top: calc(50% + 0.35rem);
+  bottom: -50%;
+  width: 2px;
+  background: color-mix(in oklab, var(--atlas-accent) 35%, transparent);
+}
+
+.spineStep:last-child::after {
+  display: none;
+}
+
+.compareViz {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 720px) {
+  .compareViz {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.compareCol {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.compareTitle {
+  margin: 0;
+  font-family: var(--atlas-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.compareBars {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.compareBar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.35rem;
+  align-items: center;
+}
+
+@media (min-width: 420px) {
+  .compareBar {
+    grid-template-columns: 7.5rem minmax(0, 1fr);
+    gap: 0.5rem;
+  }
+}
+
+.compareBarLabel {
+  font-family: var(--atlas-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  color: var(--atlas-faint);
+  text-transform: uppercase;
+}
+
+.compareBarTrack {
+  height: 0.55rem;
+  border-radius: 0.2rem;
+  background: var(--atlas-bg);
+  border: 1px solid var(--atlas-line);
+  overflow: hidden;
+}
+
+.compareBarFillDurable {
+  height: 100%;
+  background: var(--atlas-accent);
+}
+
+.compareBarFillVolatile {
+  height: 100%;
+  background: var(--atlas-operate);
+}
+
+.endModelPath {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.endModelNode {
+  font-family: var(--atlas-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--atlas-line);
+  border-radius: 0.35rem;
+  background: var(--atlas-bg);
+  color: var(--atlas-dim);
+}
+
+.endModelArrow {
+  color: var(--atlas-accent);
+  font-family: var(--atlas-mono);
+  font-size: 0.85rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .spineDot {
+    animation: atlasPulse 2.8s ease-in-out infinite;
+  }
+
+  .spineNode:nth-child(2n) .spineDot {
+    animation-delay: 0.35s;
+  }
+
+  .spineNode:nth-child(3n) .spineDot {
+    animation-delay: 0.7s;
+  }
+
+  @keyframes atlasPulse {
+    0%,
+    100% {
+      box-shadow: 0 0 0 3px var(--atlas-accent-soft);
+    }
+
+    50% {
+      box-shadow: 0 0 0 7px color-mix(in oklab, #38d9c0 12%, transparent);
+    }
+  }
+
+  @keyframes atlasRise {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes atlasDrawX {
+    from {
+      width: 0;
+      opacity: 0;
+    }
+    to {
+      width: 1.4rem;
+      opacity: 1;
+    }
+  }
+
+  .loopSeg {
+    transition:
+      stroke 200ms ease,
+      opacity 200ms ease,
+      stroke-width 200ms ease;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heroFlowNode,
+  .heroFlowArrow {
+    animation: none;
+  }
+}
+
+@media (max-height: 480px) and (orientation: landscape) {
+  .navMobile {
+    position: static;
+  }
+
+  .section {
+    scroll-margin-top: 1rem;
+  }
+
+  .loopSvgWrap {
+    width: min(100%, 16rem);
+  }
+}
+
+@media (max-width: 640px) {
+  .heroFlowArrow {
+    width: 0.85rem;
+  }
+
+  .heroFlowNode {
+    min-width: 6.75rem;
+    padding: 0.7rem 0.8rem;
+    font-size: 0.65rem;
+  }
+
+  .brand {
+    font-size: clamp(2.1rem, 11vw, 3.2rem);
+  }
+
+  .spineTrack {
+    grid-auto-columns: minmax(6.5rem, 1fr);
+  }
+}

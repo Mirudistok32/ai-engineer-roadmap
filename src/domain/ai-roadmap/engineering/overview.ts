@@ -1,0 +1,77 @@
+import type { EngineeringOverview } from '../types';
+
+export const engineeringOverview: EngineeringOverview = {
+  title: 'ENGINEERING',
+  subtitle: 'Build systems. Orchestrate intelligence. Automate engineering.',
+  lead: 'Design the system — then make it improve itself. Phase III не заканчивается: после roadmap начинается continuous engineering.',
+  stats: [
+    { label: 'MONTHS', value: '12→18' },
+    { label: 'H / WEEK', value: '10' },
+    { label: 'CAPSTONE', value: '1' },
+    { label: 'AGENTS', value: 'MULTI' },
+    { label: 'FOCUS', value: 'SYSTEMS' },
+    { label: 'AFTER', value: '∞' },
+  ],
+  orchestratorFlow: [
+    'HUMAN · ENGINEERING INTENT',
+    'ORCHESTRATOR',
+    'PRODUCT / DESIGN / CODE AGENTS',
+    'SYSTEM',
+    'OBSERVABILITY',
+    'ANALYTICS',
+    'IMPROVEMENT',
+    'AUTOMATION',
+    'MORE CAPABILITY',
+  ],
+  progress: [
+    { id: 'design', label: 'System design', coverage: 100 },
+    { id: 'ai-eng', label: 'AI engineering', coverage: 82 },
+    { id: 'automation', label: 'Automation', coverage: 70 },
+    { id: 'leadership', label: 'Engineering leadership', coverage: 58 },
+    { id: 'autonomy', label: 'Autonomous systems', coverage: 45 },
+    { id: 'capstone', label: 'Capstone product', coverage: 28 },
+  ],
+  attentionLoad: [
+    { id: 'manual', label: 'Manual', coverage: 85 },
+    { id: 'supervision', label: 'Supervision', coverage: 55 },
+    { id: 'decision', label: 'Decision', coverage: 32 },
+    { id: 'creative', label: 'Creative', coverage: 18 },
+  ],
+  aiQuality: [
+    { id: 'correctness', label: 'Correctness', coverage: 90 },
+    { id: 'reliability', label: 'Reliability', coverage: 80 },
+    { id: 'coverage', label: 'Test Coverage', coverage: 88 },
+    { id: 'security', label: 'Security', coverage: 95 },
+    { id: 'maintain', label: 'Maintainability', coverage: 78 },
+  ],
+  philosophy: {
+    lines: [
+      'See the system. Connect the system. Design the system.',
+      'Make the system improve itself.',
+      'Roadmap ends. Engineering does not.',
+    ],
+    sequence: ['SEE', 'UNDERSTAND', 'DESIGN', 'BUILD', 'VERIFY', 'MEASURE', 'AUTOMATE', 'EVOLVE'],
+  },
+  finale: {
+    title: 'THE ROADMAP ENDS HERE.',
+    subtitle: 'Your engineering journey does not.',
+    body: 'За 18 месяцев ты не станешь экспертом во всём. Ты вышел за узкую специализацию, соединил дисциплины, научился управлять AI и строить систему создания продуктов. Теперь ты сам определяешь, куда двигаться дальше.',
+    evolution: [
+      'SPECIALIST',
+      'FOUNDATION',
+      'INTEGRATION',
+      'ENGINEERING',
+      'AI ORCHESTRATION',
+      'AUTOMATION',
+      'SYSTEM BUILDING',
+      'SELF-DIRECTED LEARNING',
+      '∞',
+    ],
+    slogans: [
+      'BUILD THE PRODUCT.',
+      'BUILD THE SYSTEM.',
+      'BUILD THE SYSTEM THAT BUILDS THE PRODUCT.',
+    ],
+    sequence: ['SEE', 'UNDERSTAND', 'DESIGN', 'BUILD', 'VERIFY', 'MEASURE', 'AUTOMATE', 'EVOLVE'],
+  },
+};

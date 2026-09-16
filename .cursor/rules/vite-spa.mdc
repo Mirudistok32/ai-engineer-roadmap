@@ -1,0 +1,18 @@
+---
+description: Vite + React SPA conventions for this roadmap app
+alwaysApply: true
+---
+
+# Vite SPA (this project)
+
+Stack: Vite + React 19 + React Router. **No Next.js.**
+
+- Shared engineering base: sibling `../agent-base/` (architecture, adaptive UI,
+  React hygiene). Follow those docs/rules first.
+- Routes live in `src/App.tsx` (or thin route modules). Screens in
+  `src/presentation/**` take **data + callbacks** — do not import
+  `react-router` into leaf screens when avoidable.
+- `src/domain/**` stays pure (no React, no `window`).
+- Path alias `@/` → `src/`.
+- Lint: `oxlint`. Format: Prettier when present. Quality: `npm run check`.
+- Static deploy: `dist/` + optional `VITE_BASE` for GitHub Pages.
