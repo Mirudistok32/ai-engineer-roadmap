@@ -1,40 +1,79 @@
-
 import { useState } from 'react';
 
-import { integration, system } from '@/domain/ai-roadmap';
-
+import { integration, productGuide, system } from '@/domain/ai-roadmap';
+import type { AtlasNavHandlers } from './AppChrome';
+import { AtlasFrame } from './AppChrome';
 import styles from './atlas.module.css';
 import { MissionCard } from './MissionCard';
 
-type SystemLabsViewProps = {
-  readonly onBack: () => void;
-  readonly onOpenLoop: () => void;
-  readonly onOpenPhase: (id: 'foundation' | 'integration' | 'engineering') => void;
-};
+type SystemLabsViewProps = AtlasNavHandlers;
 
 const TABS = [
-  { id: 'missions', label: 'Missions' },
-  { id: 'failure', label: 'Failure Lab' },
-  { id: 'gym', label: 'Arch Gym' },
-  { id: 'tradeoffs', label: 'Trade-offs' },
-  { id: 'arena', label: 'Agent Arena' },
-  { id: 'ai', label: 'AI Layer' },
-  { id: 'frontier', label: 'Unknown' },
+  {
+    id: 'missions',
+    label: 'Миссии',
+    hint: 'Сквозные задачи, которые связывают несколько дисциплин сразу.',
+  },
+  {
+    id: 'failure',
+    label: 'Сбои',
+    hint: 'Система уже сломана. Разберись, что проверить и как не допустить снова.',
+  },
+  {
+    id: 'gym',
+    label: 'Архитектура',
+    hint: 'Один и тот же продукт при 100, 10k и 1M пользователей — разные компромиссы.',
+  },
+  {
+    id: 'tradeoffs',
+    label: 'Компромиссы',
+    hint: 'Нет правильного выбора вообще. Есть выбор под ограничения.',
+  },
+  {
+    id: 'arena',
+    label: 'Арена агентов',
+    hint: 'Собери цепочку агентов и реши, где человек обязан остаться в контуре.',
+  },
+  {
+    id: 'ai',
+    label: 'Слой AI',
+    hint: 'По доменам: чем AI помогает, что нельзя отдавать без проверки.',
+  },
+  {
+    id: 'frontier',
+    label: 'Неизвестное',
+    hint: 'Как разбираться в новой теме, а не пытаться знать всё заранее.',
+  },
 ] as const;
 
 type TabId = (typeof TABS)[number]['id'];
 
-export function SystemLabsView({ onBack, onOpenLoop, onOpenPhase }: SystemLabsViewProps) {
+export function SystemLabsView({
+  onOpenMap,
+  onOpenPhase,
+  onOpenLoop,
+  onOpenLabs,
+}: SystemLabsViewProps) {
   const [tab, setTab] = useState<TabId>('missions');
   const [gymId, setGymId] = useState(system.architectureGym[0]?.id ?? '');
   const [tradeId, setTradeId] = useState(system.tradeOffs[0]?.id ?? '');
-  const [arena, setArena] = useState<readonly string[]>(() => [...system.agentArenaDefault]);
-  const [failId, setFailId] = useState(integration.failureScenarios[0]?.id ?? '');
+  const [arena, setArena] = useState<readonly string[]>(() => [
+    ...system.agentArenaDefault,
+  ]);
+  const [failId, setFailId] = useState(
+    integration.failureScenarios[0]?.id ?? '',
+  );
 
-  const gym = system.architectureGym.find((g) => g.id === gymId) ?? system.architectureGym[0];
-  const trade = system.tradeOffs.find((t) => t.id === tradeId) ?? system.tradeOffs[0];
+  const gym =
+    system.architectureGym.find((g) => g.id === gymId) ??
+    system.architectureGym[0];
+  const trade =
+    system.tradeOffs.find((t) => t.id === tradeId) ?? system.tradeOffs[0];
   const failure =
-    integration.failureScenarios.find((f) => f.id === failId) ?? integration.failureScenarios[0];
+    integration.failureScenarios.find((f) => f.id === failId) ??
+    integration.failureScenarios[0];
+  const nav = { onOpenMap, onOpenPhase, onOpenLoop, onOpenLabs };
+  const tool = productGuide.tools.labs;
 
   function removeAgent(name: string) {
     setArena((prev) => prev.filter((item) => item !== name));
@@ -45,22 +84,22 @@ export function SystemLabsView({ onBack, onOpenLoop, onOpenPhase }: SystemLabsVi
   }
 
   return (
-    <div className={styles.atlas} data-product="ai-roadmap" data-screen="labs">
+    <AtlasFrame current="labs" nav={nav}>
       <div className={styles.shell} style={{ gridTemplateColumns: '1fr' }}>
         <div className={styles.main}>
-          <button type="button" className={styles.backLink} onClick={onBack}>
-            ← THE MAP
-          </button>
-          <p className={styles.kicker}>Screens 06–10 · System Labs</p>
-          <h1 className={styles.display} style={{ fontSize: 'clamp(2.2rem, 7vw, 4rem)' }}>
-            Practice the system
-          </h1>
-          <p className={styles.lead}>
-            Missions · Failure Lab · Architecture Gym · Trade-off Engine · Agent Arena. Не курс —
-            инженерные испытания.
+          <p className={styles.kicker}>Тренажёр · не замена плана</p>
+          <h1 className={styles.display}>{tool.title}</h1>
+          <p className={styles.lead}>{tool.why}</p>
+          <p className={styles.callout}>
+            <strong>Как пользоваться. </strong>
+            {tool.how}
           </p>
 
-          <div className={styles.depthTabs} role="tablist" aria-label="Labs">
+          <div
+            className={styles.depthTabs}
+            role="tablist"
+            aria-label="Лаборатории"
+          >
             {TABS.map((item) => (
               <button
                 key={item.id}
@@ -74,38 +113,49 @@ export function SystemLabsView({ onBack, onOpenLoop, onOpenPhase }: SystemLabsVi
               </button>
             ))}
           </div>
+          <p className={styles.sectionLead}>
+            {TABS.find((item) => item.id === tab)?.hint}
+          </p>
 
           {tab === 'missions' ? (
-            <section aria-label="Missions">
-              <h2 className={styles.sectionTitle}>Cross-disciplinary missions</h2>
+            <section aria-label="Миссии">
+              <h2 className={styles.sectionTitle}>Междисциплинарные миссии</h2>
               <div className={styles.themeGrid}>
                 {system.crossMissions.map((mission) => (
                   <article key={mission.id} className={styles.panel}>
                     <h3 className={styles.nodeTitle}>{mission.title}</h3>
                     <p className={styles.nodeShort}>{mission.objective}</p>
-                    <div className={styles.chain} style={{ marginTop: '0.75rem' }}>
+                    <div
+                      className={styles.chain}
+                      style={{ marginTop: '0.75rem' }}
+                    >
                       {mission.chain.map((step) => (
                         <div key={step} className={styles.chainStep}>
                           {step}
                         </div>
                       ))}
                     </div>
-                    <p className={styles.nodeShort} style={{ marginTop: '0.75rem' }}>
+                    <p
+                      className={styles.nodeShort}
+                      style={{ marginTop: '0.75rem' }}
+                    >
                       {mission.lesson}
                     </p>
                   </article>
                 ))}
               </div>
               <div className={styles.panel} style={{ marginTop: '1.25rem' }}>
-                <p className={styles.kicker}>Responsibility levels · not checkboxes</p>
+                <p className={styles.kicker}>
+                  Уровни ответственности · не чекбоксы
+                </p>
                 <div className={styles.scrollX}>
                   <table className={styles.matrix}>
                     <thead>
                       <tr>
-                        <th scope="col">Domain</th>
-                        <th scope="col">Foundation</th>
-                        <th scope="col">Integration</th>
-                        <th scope="col">Engineering</th>
+                        <th scope="col">Домен</th>
+                        <th scope="col">Фундамент</th>
+                        <th scope="col">Интеграция</th>
+                        <th scope="col">Инженерия</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -123,18 +173,20 @@ export function SystemLabsView({ onBack, onOpenLoop, onOpenPhase }: SystemLabsVi
               </div>
               {integration.integrationMissionById['int-capstone'] ? (
                 <div style={{ marginTop: '1.25rem' }}>
-                  <MissionCard mission={integration.integrationMissionById['int-capstone']} />
+                  <MissionCard
+                    mission={integration.integrationMissionById['int-capstone']}
+                  />
                 </div>
               ) : null}
             </section>
           ) : null}
 
           {tab === 'failure' ? (
-            <section aria-label="Failure Lab">
-              <h2 className={styles.sectionTitle}>Failure Lab</h2>
+            <section aria-label="Лаборатория сбоев">
+              <h2 className={styles.sectionTitle}>Лаборатория сбоев</h2>
               <p className={styles.sectionLead}>
-                Система уже сломана. Найди root cause. AI может симулировать — инженер проектирует
-                detect → prevent.
+                Система уже сломана. Найди первопричину. AI может симулировать —
+                инженер проектирует detect → prevent.
               </p>
               <div className={styles.themeGrid}>
                 {integration.failureScenarios.map((scenario) => (
@@ -154,7 +206,10 @@ export function SystemLabsView({ onBack, onOpenLoop, onOpenPhase }: SystemLabsVi
                   style={{ marginTop: '1rem' }}
                 >
                   <h3 className={styles.nodeTitle}>{failure.title}</h3>
-                  <div className={styles.chain} style={{ marginTop: '0.75rem' }}>
+                  <div
+                    className={styles.chain}
+                    style={{ marginTop: '0.75rem' }}
+                  >
                     {failure.questions.map((q) => (
                       <div key={q} className={styles.chainStep}>
                         {q}
@@ -164,15 +219,15 @@ export function SystemLabsView({ onBack, onOpenLoop, onOpenPhase }: SystemLabsVi
                 </div>
               ) : null}
               <div className={styles.panel} style={{ marginTop: '1rem' }}>
-                <p className={styles.kicker}>Extra 2.0 scenarios</p>
+                <p className={styles.kicker}>Доп. сценарии 2.0</p>
                 <div className={styles.journey}>
                   {[
-                    'slow database query',
-                    'memory leak',
+                    'медленный запрос к БД',
+                    'утечка памяти',
                     'race condition',
                     'XSS',
-                    'incorrect AI-generated code',
-                    'agent changed unrelated code',
+                    'некорректный AI-сгенерированный код',
+                    'агент изменил несвязанный код',
                   ].map((item) => (
                     <span key={item} className={styles.chip}>
                       {item}
@@ -184,8 +239,8 @@ export function SystemLabsView({ onBack, onOpenLoop, onOpenPhase }: SystemLabsVi
           ) : null}
 
           {tab === 'gym' ? (
-            <section aria-label="Architecture Gym">
-              <h2 className={styles.sectionTitle}>Architecture Gym</h2>
+            <section aria-label="Архитектурный зал">
+              <h2 className={styles.sectionTitle}>Архитектурный зал</h2>
               <p className={styles.sectionLead}>
                 Нет единственного правильного ответа — только trade-offs.
               </p>
@@ -204,12 +259,12 @@ export function SystemLabsView({ onBack, onOpenLoop, onOpenPhase }: SystemLabsVi
               {gym ? (
                 <article className={`${styles.panel} ${styles.panelGlow}`}>
                   <h3 className={styles.nodeTitle}>{gym.users}</h3>
-                  <LoopList title="Constraints" items={gym.constraints} />
-                  <LoopList title="Reconsider" items={gym.reconsider} />
-                  <LoopList title="Advantages" items={gym.advantages} />
-                  <LoopList title="Risks" items={gym.risks} />
+                  <LoopList title="Ограничения" items={gym.constraints} />
+                  <LoopList title="Пересмотреть" items={gym.reconsider} />
+                  <LoopList title="Преимущества" items={gym.advantages} />
+                  <LoopList title="Риски" items={gym.risks} />
                   <p className={styles.skillStatus}>
-                    Complexity · {gym.complexity} · Cost · {gym.cost}
+                    Сложность · {gym.complexity} · Стоимость · {gym.cost}
                   </p>
                 </article>
               ) : null}
@@ -217,8 +272,8 @@ export function SystemLabsView({ onBack, onOpenLoop, onOpenPhase }: SystemLabsVi
           ) : null}
 
           {tab === 'tradeoffs' ? (
-            <section aria-label="Trade-off Engine">
-              <h2 className={styles.sectionTitle}>Trade-off Engine</h2>
+            <section aria-label="Движок компромиссов">
+              <h2 className={styles.sectionTitle}>Движок компромиссов</h2>
               <p className={styles.sectionLead}>
                 Приложение не говорит «это правильно» — учит принимать решения.
               </p>
@@ -239,17 +294,27 @@ export function SystemLabsView({ onBack, onOpenLoop, onOpenPhase }: SystemLabsVi
                   <h3 className={styles.nodeTitle}>
                     {trade.optionA} vs {trade.optionB}
                   </h3>
-                  <div className={styles.progressGrid} style={{ marginTop: '1rem' }}>
+                  <div
+                    className={styles.progressGrid}
+                    style={{ marginTop: '1rem' }}
+                  >
                     {trade.axes.map((axis) => (
                       <div key={axis.name}>
-                        <p className={styles.mono} style={{ fontSize: '0.72rem' }}>
+                        <p
+                          className={styles.mono}
+                          style={{ fontSize: '0.72rem' }}
+                        >
                           {axis.name}
                         </p>
                         <p className={styles.nodeShort}>
-                          {trade.optionA}: {axis.a}% · {trade.optionB}: {axis.b}%
+                          {trade.optionA}: {axis.a}% · {trade.optionB}: {axis.b}
+                          %
                         </p>
                         <div className={styles.barTrack} aria-hidden>
-                          <div className={styles.barFill} style={{ width: `${axis.a}%` }} />
+                          <div
+                            className={styles.barFill}
+                            style={{ width: `${axis.a}%` }}
+                          />
                         </div>
                       </div>
                     ))}
@@ -260,11 +325,13 @@ export function SystemLabsView({ onBack, onOpenLoop, onOpenPhase }: SystemLabsVi
                 </article>
               ) : null}
               <div className={styles.panel} style={{ marginTop: '1.25rem' }}>
-                <p className={styles.kicker}>Sample decision log</p>
+                <p className={styles.kicker}>Пример журнала решений</p>
                 {system.sampleDecisions.map((decision) => (
                   <article key={decision.id} style={{ marginBottom: '1rem' }}>
-                    <h3 className={styles.nodeTitle}>Decision #{decision.id}</h3>
-                    <p className={styles.nodeShort}>Problem: {decision.problem}</p>
+                    <h3 className={styles.nodeTitle}>Решение #{decision.id}</h3>
+                    <p className={styles.nodeShort}>
+                      Проблема: {decision.problem}
+                    </p>
                     <ul className={styles.topicList}>
                       {decision.options.map((opt) => (
                         <li key={opt} className={styles.topic}>
@@ -272,10 +339,16 @@ export function SystemLabsView({ onBack, onOpenLoop, onOpenPhase }: SystemLabsVi
                         </li>
                       ))}
                     </ul>
-                    <p className={styles.nodeShort}>Decision: {decision.decision}</p>
-                    <p className={styles.nodeShort}>Why: {decision.why}</p>
-                    <p className={styles.nodeShort}>Trade-offs: {decision.tradeOffs}</p>
-                    <p className={styles.nodeShort}>Result: {decision.result}</p>
+                    <p className={styles.nodeShort}>
+                      Решение: {decision.decision}
+                    </p>
+                    <p className={styles.nodeShort}>Почему: {decision.why}</p>
+                    <p className={styles.nodeShort}>
+                      Компромиссы: {decision.tradeOffs}
+                    </p>
+                    <p className={styles.nodeShort}>
+                      Результат: {decision.result}
+                    </p>
                   </article>
                 ))}
               </div>
@@ -283,16 +356,19 @@ export function SystemLabsView({ onBack, onOpenLoop, onOpenPhase }: SystemLabsVi
           ) : null}
 
           {tab === 'arena' ? (
-            <section aria-label="Agent Arena">
-              <h2 className={styles.sectionTitle}>Agent Arena</h2>
+            <section aria-label="Арена агентов">
+              <h2 className={styles.sectionTitle}>Арена агентов</h2>
               <p className={styles.sectionLead}>
-                Построй AI workflow. Реши сколько агентов нужно, где human gate, какие permissions.
+                Построй AI workflow. Реши сколько агентов нужно, где human gate,
+                какие permissions.
               </p>
               <div className={styles.chain}>
                 {arena.map((step) => (
                   <div key={step} className={styles.chainStep}>
                     <span>{step}</span>
-                    {step !== 'HUMAN' && step !== 'HUMAN APPROVAL' && step !== 'DEPLOYMENT' ? (
+                    {step !== 'ЧЕЛОВЕК' &&
+                    step !== 'ОДОБРЕНИЕ ЧЕЛОВЕКА' &&
+                    step !== 'ДЕПЛОЙ' ? (
                       <button
                         type="button"
                         className={styles.buttonGhost}
@@ -303,20 +379,27 @@ export function SystemLabsView({ onBack, onOpenLoop, onOpenPhase }: SystemLabsVi
                         }}
                         onClick={() => removeAgent(step)}
                       >
-                        Remove
+                        Убрать
                       </button>
                     ) : null}
                   </div>
                 ))}
               </div>
               <div className={styles.ctaRow}>
-                <button type="button" className={styles.buttonGhost} onClick={resetArena}>
-                  Reset workflow
+                <button
+                  type="button"
+                  className={styles.buttonGhost}
+                  onClick={resetArena}
+                >
+                  Сбросить workflow
                 </button>
               </div>
-              <div className={styles.splitStack} style={{ marginTop: '1.25rem' }}>
+              <div
+                className={styles.splitStack}
+                style={{ marginTop: '1.25rem' }}
+              >
                 <div className={styles.panel}>
-                  <p className={styles.kicker}>Risk-gated autonomy</p>
+                  <p className={styles.kicker}>Автономия по риску</p>
                   <ul className={styles.detailList}>
                     {system.riskAutonomy.map((row) => (
                       <li key={row.task}>
@@ -326,7 +409,7 @@ export function SystemLabsView({ onBack, onOpenLoop, onOpenPhase }: SystemLabsVi
                   </ul>
                 </div>
                 <div className={styles.panel}>
-                  <p className={styles.kicker}>Agent evals</p>
+                  <p className={styles.kicker}>Оценки агентов</p>
                   <ul className={styles.topicList}>
                     {system.agentEvals.map((item) => (
                       <li key={item} className={styles.topic}>
@@ -335,7 +418,7 @@ export function SystemLabsView({ onBack, onOpenLoop, onOpenPhase }: SystemLabsVi
                     ))}
                   </ul>
                   <p className={styles.kicker} style={{ marginTop: '1rem' }}>
-                    AI observability
+                    Наблюдаемость AI
                   </p>
                   <div className={styles.chain}>
                     {system.aiObservability.map((step) => (
@@ -350,17 +433,32 @@ export function SystemLabsView({ onBack, onOpenLoop, onOpenPhase }: SystemLabsVi
           ) : null}
 
           {tab === 'ai' ? (
-            <section aria-label="AI Layer">
-              <h2 className={styles.sectionTitle}>AI layer across domains</h2>
+            <section aria-label="Слой AI">
+              <h2 className={styles.sectionTitle}>AI-слой по доменам</h2>
               <div className={styles.themeGrid}>
                 {system.aiDomainLayers.map((layer) => (
                   <article key={layer.domain} className={styles.panel}>
                     <h3 className={styles.nodeTitle}>{layer.domain}</h3>
-                    <LoopList title="How AI helps" items={layer.howAiHelps} />
-                    <LoopList title="AI can execute" items={layer.whatAiCanExecute} />
-                    <LoopList title="Human must verify" items={layer.humanMustVerify} />
-                    <LoopList title="AI should not decide" items={layer.aiShouldNotDecide} />
-                    <LoopList title="Can automate" items={layer.canAutomate} />
+                    <LoopList
+                      title="Как помогает AI"
+                      items={layer.howAiHelps}
+                    />
+                    <LoopList
+                      title="AI может выполнить"
+                      items={layer.whatAiCanExecute}
+                    />
+                    <LoopList
+                      title="Человек должен проверить"
+                      items={layer.humanMustVerify}
+                    />
+                    <LoopList
+                      title="AI не должен решать"
+                      items={layer.aiShouldNotDecide}
+                    />
+                    <LoopList
+                      title="Можно автоматизировать"
+                      items={layer.canAutomate}
+                    />
                   </article>
                 ))}
               </div>
@@ -368,10 +466,11 @@ export function SystemLabsView({ onBack, onOpenLoop, onOpenPhase }: SystemLabsVi
           ) : null}
 
           {tab === 'frontier' ? (
-            <section aria-label="Unknown Zone">
-              <h2 className={styles.sectionTitle}>Unknown Zone</h2>
+            <section aria-label="Зона неизвестного">
+              <h2 className={styles.sectionTitle}>Зона неизвестного</h2>
               <p className={styles.sectionLead}>
-                Сильный инженер не знает всё. Он умеет быстро разобраться в неизвестном.
+                Сильный инженер не знает всё. Он умеет быстро разобраться в
+                неизвестном.
               </p>
               <div className={styles.progressGrid}>
                 {system.unknownZone.map((axis) => (
@@ -381,13 +480,16 @@ export function SystemLabsView({ onBack, onOpenLoop, onOpenPhase }: SystemLabsVi
                       <span>{axis.coverage}%</span>
                     </div>
                     <div className={styles.barTrack}>
-                      <div className={styles.barFill} style={{ width: `${axis.coverage}%` }} />
+                      <div
+                        className={styles.barFill}
+                        style={{ width: `${axis.coverage}%` }}
+                      />
                     </div>
                   </div>
                 ))}
               </div>
               <div className={styles.panel} style={{ marginTop: '1.25rem' }}>
-                <p className={styles.kicker}>Learning loop</p>
+                <p className={styles.kicker}>Цикл обучения</p>
                 <div className={styles.chain}>
                   {system.learningLoop.map((step) => (
                     <div key={step} className={styles.chainStep}>
@@ -402,30 +504,47 @@ export function SystemLabsView({ onBack, onOpenLoop, onOpenPhase }: SystemLabsVi
                   className={styles.button}
                   onClick={() => onOpenPhase('engineering')}
                 >
-                  Open Phase III
+                  Открыть этап 3
                 </button>
               </div>
             </section>
           ) : null}
 
           <div className={styles.ctaRow}>
-            <button type="button" className={styles.buttonGhost} onClick={onOpenLoop}>
-              Engineering Loop
+            <button
+              type="button"
+              className={styles.buttonGhost}
+              onClick={onOpenLoop}
+            >
+              Открыть цикл
             </button>
-            <button type="button" className={styles.buttonGhost} onClick={onBack}>
-              Back to map
+            <button
+              type="button"
+              className={styles.buttonGhost}
+              onClick={onOpenMap}
+            >
+              К обзору плана
             </button>
           </div>
         </div>
       </div>
-    </div>
+    </AtlasFrame>
   );
 }
 
-function LoopList({ title, items }: { title: string; items: readonly string[] }) {
+function LoopList({
+  title,
+  items,
+}: {
+  title: string;
+  items: readonly string[];
+}) {
   return (
     <div style={{ marginTop: '0.65rem' }}>
-      <p className={styles.mono} style={{ fontSize: '0.68rem', letterSpacing: '0.08em' }}>
+      <p
+        className={styles.mono}
+        style={{ fontSize: '0.68rem', letterSpacing: '0.08em' }}
+      >
         {title}
       </p>
       <ul className={styles.topicList}>

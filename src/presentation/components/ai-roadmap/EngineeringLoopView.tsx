@@ -1,13 +1,11 @@
 import { useId, useState } from 'react';
 
-import { system } from '@/domain/ai-roadmap';
-
+import { productGuide, system } from '@/domain/ai-roadmap';
+import type { AtlasNavHandlers } from './AppChrome';
+import { AtlasFrame } from './AppChrome';
 import styles from './atlas.module.css';
 
-type EngineeringLoopViewProps = {
-  readonly onBack: () => void;
-  readonly onOpenLabs: () => void;
-};
+type EngineeringLoopViewProps = AtlasNavHandlers;
 
 const SEG_COLORS = [
   '#38d9c0',
@@ -21,7 +19,9 @@ const SEG_COLORS = [
 ];
 
 export function EngineeringLoopView({
-  onBack,
+  onOpenMap,
+  onOpenPhase,
+  onOpenLoop,
   onOpenLabs,
 }: EngineeringLoopViewProps) {
   const [active, setActive] = useState(
@@ -31,25 +31,20 @@ export function EngineeringLoopView({
     system.engineeringLoop.find((s) => s.id === active) ??
     system.engineeringLoop[0];
   const titleId = useId();
+  const nav = { onOpenMap, onOpenPhase, onOpenLoop, onOpenLabs };
+  const tool = productGuide.tools.loop;
 
   return (
-    <div className={styles.atlas} data-product="ai-roadmap" data-screen="loop">
+    <AtlasFrame current="loop" nav={nav}>
       <div className={styles.shell} style={{ gridTemplateColumns: '1fr' }}>
         <div className={styles.main}>
-          <button type="button" className={styles.backLink} onClick={onBack}>
-            ← THE MAP
-          </button>
           <header className={styles.hero}>
-            <p className={styles.kicker}>Screen 05 · Engineering Loop</p>
-            <h1
-              className={styles.brand}
-              style={{ fontSize: 'clamp(2.2rem, 7vw, 4rem)' }}
-            >
-              Trust but verify
-            </h1>
-            <p className={styles.lead}>
-              Центральный цикл продукта. Кликни сегмент кольца — увидишь роль
-              инженера, AI и проверки.
+            <p className={styles.kicker}>Тренажёр · не замена плана</p>
+            <h1 className={styles.brand}>{tool.title}</h1>
+            <p className={styles.lead}>{tool.why}</p>
+            <p className={styles.callout}>
+              <strong>Как пользоваться. </strong>
+              {tool.how}
             </p>
           </header>
 
@@ -63,7 +58,7 @@ export function EngineeringLoopView({
               <div
                 className={styles.loopStageList}
                 role="listbox"
-                aria-label="Loop stages"
+                aria-label="Этапы цикла"
               >
                 {system.engineeringLoop.map((stage) => (
                   <button
@@ -88,23 +83,23 @@ export function EngineeringLoopView({
                 aria-live="polite"
                 aria-labelledby={titleId}
               >
-                <p className={styles.kicker}>Active stage</p>
+                <p className={styles.kicker}>Активный этап</p>
                 <h2 id={titleId} className={styles.sectionTitle}>
                   {stage.label}
                 </h2>
                 <p className={styles.sectionLead}>{stage.engineer}</p>
-                <LoopBlock title="Knowledge" items={stage.knowledge} />
-                <LoopBlock title="AI tools" items={stage.aiTools} />
+                <LoopBlock title="Что понимать" items={stage.knowledge} />
+                <LoopBlock title="Что может сделать AI" items={stage.aiTools} />
                 <LoopBlock
-                  title="Human must verify"
+                  title="Что проверяешь сам"
                   items={stage.humanMustVerify}
                 />
                 <LoopBlock
-                  title="Typical mistakes"
+                  title="Типичные ошибки"
                   items={stage.typicalMistakes}
                 />
                 <p className={styles.nodeShort} style={{ marginTop: '1rem' }}>
-                  <strong className={styles.mono}>Mission · </strong>
+                  <strong className={styles.mono}>Практика · </strong>
                   {stage.mission}
                 </p>
               </article>
@@ -117,19 +112,19 @@ export function EngineeringLoopView({
               className={styles.button}
               onClick={onOpenLabs}
             >
-              Open System Labs
+              Открыть лаборатории
             </button>
             <button
               type="button"
               className={styles.buttonGhost}
-              onClick={onBack}
+              onClick={onOpenMap}
             >
-              Back to map
+              К обзору плана
             </button>
           </div>
         </div>
       </div>
-    </div>
+    </AtlasFrame>
   );
 }
 
@@ -158,7 +153,7 @@ function LoopRing({
         role="img"
         aria-labelledby={labelledBy}
       >
-        <title>Engineering loop stages</title>
+        <title>Этапы инженерного цикла</title>
         {stages.map((stage, i) => {
           const start = -90 + i * (360 / n) + gap / 2;
           const mid = start + sweep / 2;
@@ -194,7 +189,7 @@ function LoopRing({
         })}
         <circle className={styles.loopHub} cx={cx} cy={cy} r={48} />
         <text className={styles.loopHubText} x={cx} y={cy - 4}>
-          ENGINEER
+          ИНЖЕНЕР
         </text>
         <text className={styles.loopHubText} x={cx} y={cy + 14}>
           + AI
@@ -231,8 +226,9 @@ function LoopBlock({
 }
 
 function shortLabel(label: string): string {
-  const clean = label.replace(/[^A-Za-z]/g, ' ').trim();
-  const parts = clean.split(/\s+/);
+  const clean = label.replace(/[^A-Za-zА-Яа-яЁё]/g, ' ').trim();
+  const parts = clean.split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return label.slice(0, 8).toUpperCase();
   if (parts.length === 1) return parts[0]!.slice(0, 8).toUpperCase();
   return parts
     .slice(0, 2)

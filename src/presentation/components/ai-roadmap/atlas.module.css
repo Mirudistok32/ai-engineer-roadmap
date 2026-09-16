@@ -79,6 +79,94 @@
   box-sizing: border-box;
 }
 
+.chrome {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  border-bottom: 1px solid var(--atlas-line);
+  background: color-mix(in oklab, var(--atlas-bg) 88%, transparent);
+  backdrop-filter: blur(14px);
+}
+
+.chromeInner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.75rem;
+  width: min(100%, 92rem);
+  margin-inline: auto;
+  padding: 0.35rem max(1rem, env(safe-area-inset-right)) 0.35rem
+    max(1rem, env(safe-area-inset-left));
+  padding-top: max(0.35rem, env(safe-area-inset-top));
+}
+
+.chromeBrand {
+  min-height: 44px;
+  padding: 0.35rem 0.15rem;
+  border: 0;
+  background: none;
+  color: var(--atlas-text);
+  font-family: var(--atlas-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  cursor: pointer;
+}
+
+.chromeBrand:focus-visible {
+  outline: 2px solid var(--atlas-accent);
+  outline-offset: 2px;
+}
+
+.chromeHere {
+  margin: 0;
+  color: var(--atlas-faint);
+  font-size: 0.82rem;
+  line-height: 1.3;
+  flex: 1 1 8rem;
+  min-width: 0;
+}
+
+.chromeNav {
+  display: flex;
+  gap: 0.2rem;
+  overflow-x: auto;
+  max-width: 100%;
+  min-width: 0;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+
+.chromeLink {
+  flex-shrink: 0;
+  min-height: 44px;
+  padding: 0.35rem 0.7rem;
+  border: 0;
+  border-radius: 0.4rem;
+  background: transparent;
+  color: var(--atlas-faint);
+  font-family: var(--atlas-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.chromeLink:hover,
+.chromeLink:focus-visible {
+  color: var(--atlas-text);
+}
+
+.chromeLink:focus-visible {
+  outline: 2px solid var(--atlas-accent);
+  outline-offset: 2px;
+}
+
+.chromeLinkActive {
+  color: var(--atlas-accent);
+  background: var(--atlas-accent-soft);
+}
+
 .shell {
   display: grid;
   grid-template-columns: 1fr;
@@ -86,9 +174,8 @@
   width: min(100%, 92rem);
   margin-inline: auto;
   min-width: 0;
-  padding: max(1rem, env(safe-area-inset-top))
-    max(1rem, env(safe-area-inset-right)) max(3rem, env(safe-area-inset-bottom))
-    max(1rem, env(safe-area-inset-left));
+  padding: 1rem max(1rem, env(safe-area-inset-right))
+    max(3rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
 }
 
 @media (min-width: 1100px) {
@@ -108,9 +195,9 @@
   .nav {
     display: block;
     position: sticky;
-    top: 1rem;
+    top: 4.25rem;
     align-self: start;
-    max-height: calc(100dvh - 2rem);
+    max-height: calc(100dvh - 5.25rem);
     overflow: auto;
     padding: 0.75rem 0;
   }
@@ -118,7 +205,7 @@
 
 .navMobile {
   position: sticky;
-  top: 0;
+  top: calc(3.35rem + env(safe-area-inset-top));
   z-index: 20;
   display: flex;
   gap: 0.35rem;
@@ -189,8 +276,14 @@
 }
 
 .section {
-  scroll-margin-top: 5.5rem;
+  scroll-margin-top: 8rem;
   min-width: 0;
+}
+
+@media (min-width: 1100px) {
+  .section {
+    scroll-margin-top: 5.5rem;
+  }
 }
 
 .kicker {
@@ -222,13 +315,11 @@
 .brand {
   margin: 0;
   font-family: var(--atlas-display);
-  font-size: clamp(2.6rem, 9vw, 5.2rem);
-  line-height: 0.95;
-  letter-spacing: -0.045em;
+  font-size: clamp(1.85rem, 6.5vw, 3.4rem);
+  line-height: 1.05;
+  letter-spacing: -0.04em;
   font-weight: 800;
   color: var(--atlas-ink);
-  text-shadow: 0 0 40px
-    color-mix(in oklab, var(--atlas-accent) 28%, transparent);
 }
 
 .display {
@@ -1879,11 +1970,247 @@
     font-size: 0.65rem;
   }
 
-  .brand {
-    font-size: clamp(2.1rem, 11vw, 3.2rem);
+  .chromeHere {
+    display: none;
+  }
+
+  .chromeNav {
+    flex-basis: 100%;
   }
 
   .spineTrack {
     grid-auto-columns: minmax(6.5rem, 1fr);
   }
+}
+
+.howTo {
+  margin-top: 1.5rem;
+  padding: 1rem 0 0;
+  border-top: 1px solid var(--atlas-line);
+}
+
+.howToTitle {
+  margin: 0 0 0.85rem;
+  font-family: var(--atlas-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.howToList {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 800px) {
+  .howToList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.howToStep {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.75rem;
+  padding: 0.85rem 0.95rem;
+  border: 1px solid var(--atlas-line);
+  border-radius: var(--atlas-radius);
+  background: var(--atlas-surface);
+}
+
+.howToNum {
+  font-family: var(--atlas-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  color: var(--atlas-accent);
+  padding-top: 0.15rem;
+}
+
+.howToStepTitle {
+  margin: 0;
+  font-weight: 650;
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+}
+
+.howToStepBody {
+  margin: 0.3rem 0 0;
+  color: var(--atlas-dim);
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.callout {
+  margin: 1.25rem 0 0;
+  padding: 0.85rem 1rem;
+  border-left: 3px solid var(--atlas-accent);
+  background: var(--atlas-accent-soft);
+  color: var(--atlas-dim);
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.callout strong {
+  color: var(--atlas-text);
+}
+
+.phasePath {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 900px) {
+  .phasePath {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.phaseCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  min-width: 0;
+  padding: 1.1rem;
+  border: 1px solid var(--atlas-line);
+  border-radius: var(--atlas-radius);
+  background: var(--atlas-surface);
+}
+
+.phaseCardStart {
+  border-color: color-mix(in oklab, var(--atlas-accent) 45%, var(--atlas-line));
+}
+
+.phaseCardEyebrow {
+  margin: 0;
+  font-family: var(--atlas-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--atlas-accent);
+}
+
+.phaseCardBody,
+.phaseCardHint {
+  margin: 0;
+  color: var(--atlas-dim);
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.phaseCardHint {
+  color: var(--atlas-text);
+}
+
+.phaseCard .ctaRow {
+  margin-top: auto;
+  padding-top: 0.5rem;
+}
+
+.monthPlan {
+  display: grid;
+  gap: 0.75rem;
+  padding: clamp(1rem, 2.5vw, 1.35rem);
+  border: 1px solid var(--atlas-line);
+  border-radius: var(--atlas-radius);
+  background: var(--atlas-surface);
+}
+
+.monthGoal {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.45;
+  color: var(--atlas-text);
+}
+
+.monthGoalLabel {
+  color: var(--atlas-accent);
+  font-family: var(--atlas-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.fold {
+  border-top: 1px solid var(--atlas-line);
+  padding-top: 0.35rem;
+}
+
+.foldSummary {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  cursor: pointer;
+  font-family: var(--atlas-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: var(--atlas-dim);
+  list-style: none;
+}
+
+.foldSummary::-webkit-details-marker {
+  display: none;
+}
+
+.foldSummary::before {
+  content: '▸';
+  margin-right: 0.5rem;
+  color: var(--atlas-accent);
+}
+
+.fold[open] > .foldSummary::before {
+  content: '▾';
+}
+
+.foldSummary:hover,
+.foldSummary:focus-visible {
+  color: var(--atlas-text);
+}
+
+.foldSummary:focus-visible {
+  outline: 2px solid var(--atlas-accent);
+  outline-offset: 2px;
+}
+
+.missionBlock {
+  margin-top: 0.75rem;
+}
+
+.missionBlockLabel {
+  font-family: var(--atlas-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: var(--atlas-dim);
+}
+
+.refBlock {
+  margin: 0;
+  border: 1px solid var(--atlas-line);
+  border-radius: var(--atlas-radius);
+  background: color-mix(in oklab, var(--atlas-surface) 70%, transparent);
+  padding: 0.35rem 1rem 1rem;
+}
+
+.refBlock > summary {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  cursor: pointer;
+  font-family: var(--atlas-display);
+  font-size: 1.05rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  list-style: none;
+}
+
+.refBlock > summary::-webkit-details-marker {
+  display: none;
+}
+
+.refLead {
+  margin: 0 0 1rem;
+  color: var(--atlas-dim);
+  line-height: 1.5;
 }

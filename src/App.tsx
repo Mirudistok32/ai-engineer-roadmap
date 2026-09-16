@@ -4,77 +4,70 @@ import {
   Route,
   Routes,
   useNavigate,
-} from "react-router-dom";
+} from 'react-router-dom';
 
-import { EngineeringLoopView } from "@/presentation/components/ai-roadmap/EngineeringLoopView";
-import { EngineeringPage } from "@/presentation/components/ai-roadmap/EngineeringPage";
-import { FoundationPage } from "@/presentation/components/ai-roadmap/FoundationPage";
-import { IntegrationPage } from "@/presentation/components/ai-roadmap/IntegrationPage";
-import { RoadmapHomeView } from "@/presentation/components/ai-roadmap/RoadmapHomeView";
-import { SystemLabsView } from "@/presentation/components/ai-roadmap/SystemLabsView";
+import type { PhaseId } from '@/domain/ai-roadmap';
+import type { AtlasNavHandlers } from '@/presentation/components/ai-roadmap/AppChrome';
+import { EngineeringLoopView } from '@/presentation/components/ai-roadmap/EngineeringLoopView';
+import { EngineeringPage } from '@/presentation/components/ai-roadmap/EngineeringPage';
+import { FoundationPage } from '@/presentation/components/ai-roadmap/FoundationPage';
+import { IntegrationPage } from '@/presentation/components/ai-roadmap/IntegrationPage';
+import { RoadmapHomeView } from '@/presentation/components/ai-roadmap/RoadmapHomeView';
+import { SystemLabsView } from '@/presentation/components/ai-roadmap/SystemLabsView';
+
+function useAtlasNav(): AtlasNavHandlers {
+  const navigate = useNavigate();
+  return {
+    onOpenMap: () => navigate('/'),
+    onOpenPhase: (id: PhaseId) => navigate(`/phase/${id}`),
+    onOpenLoop: () => navigate('/loop'),
+    onOpenLabs: () => navigate('/labs'),
+  };
+}
 
 function MapPage() {
-  const navigate = useNavigate();
-  return (
-    <RoadmapHomeView
-      onOpenPhase={(id) => navigate(`/phase/${id}`)}
-      onOpenLoop={() => navigate("/loop")}
-      onOpenLabs={() => navigate("/labs")}
-    />
-  );
+  return <RoadmapHomeView {...useAtlasNav()} />;
 }
 
 function FoundationRoute() {
-  const navigate = useNavigate();
+  const nav = useAtlasNav();
   return (
     <FoundationPage
-      onBack={() => navigate("/")}
+      {...nav}
       phaseIIReady
-      onEnterPhaseII={() => navigate("/phase/integration")}
+      onEnterPhaseII={() => nav.onOpenPhase('integration')}
     />
   );
 }
 
 function IntegrationRoute() {
-  const navigate = useNavigate();
+  const nav = useAtlasNav();
   return (
     <IntegrationPage
-      onBack={() => navigate("/")}
+      {...nav}
       phaseIIIReady
-      onEnterPhaseIII={() => navigate("/phase/engineering")}
+      onEnterPhaseIII={() => nav.onOpenPhase('engineering')}
     />
   );
 }
 
 function EngineeringRoute() {
-  const navigate = useNavigate();
-  return <EngineeringPage onBack={() => navigate("/")} />;
+  return <EngineeringPage {...useAtlasNav()} />;
 }
 
 function LoopRoute() {
-  const navigate = useNavigate();
-  return (
-    <EngineeringLoopView
-      onBack={() => navigate("/")}
-      onOpenLabs={() => navigate("/labs")}
-    />
-  );
+  return <EngineeringLoopView {...useAtlasNav()} />;
 }
 
 function LabsRoute() {
-  const navigate = useNavigate();
-  return (
-    <SystemLabsView
-      onBack={() => navigate("/")}
-      onOpenLoop={() => navigate("/loop")}
-      onOpenPhase={(id) => navigate(`/phase/${id}`)}
-    />
-  );
+  return <SystemLabsView {...useAtlasNav()} />;
 }
 
 export default function App() {
+  const basename = import.meta.env.BASE_URL.replace(/\/$/, '') || '/';
+
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={basename === '/' ? undefined : basename}>
       <Routes>
         <Route path="/" element={<MapPage />} />
         <Route path="/phase/foundation" element={<FoundationRoute />} />

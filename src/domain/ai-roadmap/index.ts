@@ -1,6 +1,8 @@
 export * as engineering from './engineering';
 export * as foundation from './foundation';
 export * as integration from './integration';
+export { productGuide } from './guide';
+export type { GuideStep, PhaseGuide } from './guide';
 export { getPhase, isPhaseId, PHASES } from './phases';
 export type {
   AiDomainLayer,

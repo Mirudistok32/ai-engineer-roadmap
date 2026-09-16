@@ -1,4 +1,3 @@
-
 import { useId, useState } from 'react';
 
 import type { Domain } from '@/domain/ai-roadmap';
@@ -6,10 +5,10 @@ import type { Domain } from '@/domain/ai-roadmap';
 import styles from './atlas.module.css';
 
 const DEPTHS = [
-  { id: 'summary', label: 'L1 Summary' },
-  { id: 'detail', label: 'L2 Detail' },
-  { id: 'know', label: 'L3 Know' },
-  { id: 'able', label: 'L4 Able' },
+  { id: 'summary', label: 'L1 Кратко' },
+  { id: 'detail', label: 'L2 Детали' },
+  { id: 'know', label: 'L3 Знать' },
+  { id: 'able', label: 'L4 Уметь' },
   { id: 'ai', label: 'L6 AI' },
 ] as const;
 
@@ -36,12 +35,20 @@ export function DomainCard({ domain, selected, onSelect }: DomainCardProps) {
         <p className={styles.nodeShort}>{domain.short}</p>
       </button>
       {selected ? (
-        <div id={panelId} className={styles.panel} style={{ marginTop: '0.65rem' }}>
+        <div
+          id={panelId}
+          className={styles.panel}
+          style={{ marginTop: '0.65rem' }}
+        >
           <p className={styles.kicker}>{domain.pillar}</p>
           <p className={styles.sectionLead} style={{ marginBottom: '0.75rem' }}>
             {domain.why}
           </p>
-          <div className={styles.depthTabs} role="tablist" aria-label={`${domain.title} depth`}>
+          <div
+            className={styles.depthTabs}
+            role="tablist"
+            aria-label={`Глубина: ${domain.title}`}
+          >
             {DEPTHS.map((tab) => (
               <button
                 key={tab.id}
@@ -57,15 +64,15 @@ export function DomainCard({ domain, selected, onSelect }: DomainCardProps) {
           </div>
           <DepthBody domain={domain} depth={depth} />
           <p className={styles.nodeShort} style={{ marginTop: '0.85rem' }}>
-            <strong className={styles.mono}>AI leverage · </strong>
+            <strong className={styles.mono}>Рычаг AI · </strong>
             {domain.aiLeverage}
           </p>
           <p className={styles.nodeShort}>
-            <strong className={styles.mono}>Outcome · </strong>
+            <strong className={styles.mono}>Результат · </strong>
             {domain.outcome}
           </p>
           <p className={styles.kicker} style={{ marginTop: '1rem' }}>
-            What good looks like
+            Как выглядит хорошо
           </p>
           <ul className={styles.topicList}>
             {domain.whatGoodLooksLike.map((item) => (
@@ -74,7 +81,7 @@ export function DomainCard({ domain, selected, onSelect }: DomainCardProps) {
               </li>
             ))}
           </ul>
-          <ul className={styles.topicList} aria-label="Topics">
+          <ul className={styles.topicList} aria-label="Темы">
             {domain.topics.map((topic) => (
               <li key={topic} className={styles.topic}>
                 {topic}
@@ -87,11 +94,23 @@ export function DomainCard({ domain, selected, onSelect }: DomainCardProps) {
   );
 }
 
-function DepthBody({ domain, depth }: { domain: Domain; depth: (typeof DEPTHS)[number]['id'] }) {
-  if (depth === 'summary') return <p className={styles.sectionLead}>{domain.depth.summary}</p>;
-  if (depth === 'detail') return <p className={styles.sectionLead}>{domain.depth.detail}</p>;
+function DepthBody({
+  domain,
+  depth,
+}: {
+  domain: Domain;
+  depth: (typeof DEPTHS)[number]['id'];
+}) {
+  if (depth === 'summary')
+    return <p className={styles.sectionLead}>{domain.depth.summary}</p>;
+  if (depth === 'detail')
+    return <p className={styles.sectionLead}>{domain.depth.detail}</p>;
   const items =
-    depth === 'know' ? domain.depth.know : depth === 'able' ? domain.depth.able : domain.depth.ai;
+    depth === 'know'
+      ? domain.depth.know
+      : depth === 'able'
+        ? domain.depth.able
+        : domain.depth.ai;
   return (
     <ul className={styles.detailList}>
       {items.map((item) => (

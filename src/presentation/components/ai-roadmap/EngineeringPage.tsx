@@ -1,32 +1,38 @@
-
-import { engineering } from '@/domain/ai-roadmap';
-
+import { engineering, productGuide } from '@/domain/ai-roadmap';
+import type { AtlasNavHandlers } from './AppChrome';
+import { AtlasFrame } from './AppChrome';
 import styles from './atlas.module.css';
 import { MissionCard } from './MissionCard';
+import { collectMonthMissions } from './collectMonthMissions';
+import { MonthPlan } from './MonthPlan';
 import { Reveal } from './Reveal';
 import { useActiveSection } from './useActiveSection';
 
-type EngineeringPageProps = {
-  readonly onBack: () => void;
-};
+type EngineeringPageProps = AtlasNavHandlers;
 
 const NAV_IDS = engineering.navSections.map((s) => s.id);
 
-export function EngineeringPage({ onBack }: EngineeringPageProps) {
+export function EngineeringPage({
+  onOpenMap,
+  onOpenPhase,
+  onOpenLoop,
+  onOpenLabs,
+}: EngineeringPageProps) {
   const active = useActiveSection(NAV_IDS);
   const overview = engineering.engineeringOverview;
+  const guide = productGuide.phases.engineering;
+  const nav = { onOpenMap, onOpenPhase, onOpenLoop, onOpenLabs };
 
   function scrollTo(id: string) {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document
+      .getElementById(id)
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   return (
-    <div className={styles.atlas} data-product="ai-roadmap" data-phase="engineering">
+    <AtlasFrame current="engineering" nav={nav}>
       <div className={styles.shell}>
-        <nav className={styles.nav} aria-label="Engineering sections">
-          <button type="button" className={styles.backLink} onClick={onBack}>
-            ← Roadmap hub
-          </button>
+        <nav className={styles.nav} aria-label="Разделы этапа 3">
           {engineering.navSections.map((section) => (
             <button
               key={section.id}
@@ -41,10 +47,7 @@ export function EngineeringPage({ onBack }: EngineeringPageProps) {
         </nav>
 
         <div className={styles.main}>
-          <div className={styles.navMobile} aria-label="Engineering sections">
-            <button type="button" className={styles.navLink} onClick={onBack}>
-              ← Hub
-            </button>
+          <div className={styles.navMobile} aria-label="Разделы этапа 3">
             {engineering.navSections.map((section) => (
               <button
                 key={section.id}
@@ -59,30 +62,117 @@ export function EngineeringPage({ onBack }: EngineeringPageProps) {
 
           <header id="hero" className={styles.section}>
             <Reveal>
-              <p className={styles.kicker}>Phase III · Design · Orchestrate · Automate · ∞</p>
-              <h1 className={styles.display}>{overview.title}</h1>
-              <p className={styles.lead}>{overview.subtitle}</p>
-              <p className={styles.sublead}>{overview.lead}</p>
-              <div className={styles.stats} style={{ marginTop: '1.75rem' }}>
-                {overview.stats.map((stat) => (
-                  <div key={stat.label} className={styles.stat}>
-                    <span className={styles.statValue}>{stat.value}</span>
-                    <span className={styles.statLabel}>{stat.label}</span>
-                  </div>
-                ))}
+              <p className={styles.kicker}>{guide.eyebrow}</p>
+              <h1 className={styles.display}>{guide.title}</h1>
+              <p className={styles.lead}>{guide.thisPhase}</p>
+              <p className={styles.sublead}>{guide.forWhom}</p>
+              <p className={styles.callout}>
+                <strong>Сейчас сделай это. </strong>
+                {guide.startWith}
+              </p>
+              <div className={styles.ctaRow}>
+                <button
+                  type="button"
+                  className={styles.button}
+                  onClick={() => scrollTo('months')}
+                >
+                  К плану по месяцам
+                </button>
               </div>
             </Reveal>
           </header>
 
-          <section id="map" className={styles.section} aria-labelledby="map-title">
+          <section
+            id="months"
+            className={styles.section}
+            aria-labelledby="months-title"
+          >
             <Reveal>
-              <h2 id="map-title" className={styles.sectionTitle}>
-                Engineering map
+              <h2 id="months-title" className={styles.sectionTitle}>
+                План на месяцы 13–18
               </h2>
               <p className={styles.sectionLead}>
-                Human sets intent. Orchestrator runs the system. Automation compounds capability.
+                Открой текущий месяц и сделай задание. Ниже — рамка: думай от
+                масштаба и сбоев, не от модного стека.
               </p>
-              <div className={styles.centerEngineer}>Human · Engineering Intent</div>
+              <div className={styles.month}>
+                {engineering.engineeringMonths.map((month, index) => (
+                  <MonthPlan
+                    key={month.id}
+                    month={month}
+                    displayNumber={month.number + 12}
+                    missions={collectMonthMissions(
+                      month,
+                      engineering.engineeringMissionById,
+                    )}
+                    defaultOpen={index === 0}
+                  />
+                ))}
+              </div>
+              <div
+                className={styles.splitStack}
+                style={{ marginTop: '1.25rem' }}
+              >
+                <div className={styles.panel}>
+                  <p className={styles.kicker}>Мышление масштаба</p>
+                  <div className={styles.chain}>
+                    {engineering.scaleSteps.map((step) => (
+                      <div key={step} className={styles.chainStep}>
+                        {step}
+                      </div>
+                    ))}
+                  </div>
+                  <ul
+                    className={styles.topicList}
+                    style={{ marginTop: '0.75rem' }}
+                  >
+                    {engineering.scaleChanges.map((item) => (
+                      <li key={item} className={styles.topic}>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className={styles.panel}>
+                  <p className={styles.kicker}>Сначала сбои</p>
+                  <div className={styles.journey}>
+                    {engineering.failureModes.map((mode) => (
+                      <span key={mode} className={styles.chip}>
+                        {mode}
+                      </span>
+                    ))}
+                  </div>
+                  <div
+                    className={styles.chain}
+                    style={{ marginTop: '0.75rem' }}
+                  >
+                    {engineering.failureLoop.map((step) => (
+                      <div key={step} className={styles.chainStep}>
+                        {step}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </Reveal>
+          </section>
+
+          <section
+            id="map"
+            className={styles.section}
+            aria-labelledby="map-title"
+          >
+            <Reveal>
+              <h2 id="map-title" className={styles.sectionTitle}>
+                Карта Engineering
+              </h2>
+              <p className={styles.sectionLead}>
+                Человек задаёт intent. Оркестратор ведёт систему. Автоматизация
+                усиливает возможности.
+              </p>
+              <div className={styles.centerEngineer}>
+                Человек · инженерный intent
+              </div>
               <div className={`${styles.panel} ${styles.panelGlow}`}>
                 <div className={styles.chain}>
                   {overview.orchestratorFlow.map((step) => (
@@ -100,7 +190,7 @@ export function EngineeringPage({ onBack }: EngineeringPageProps) {
                 ))}
               </div>
               <div className={styles.panel} style={{ marginTop: '1.25rem' }}>
-                <p className={styles.kicker}>Final workflow</p>
+                <p className={styles.kicker}>Итоговый workflow</p>
                 <div className={styles.journey}>
                   {engineering.finalWorkflow.map((step) => (
                     <span key={step} className={styles.chip}>
@@ -109,14 +199,21 @@ export function EngineeringPage({ onBack }: EngineeringPageProps) {
                   ))}
                 </div>
               </div>
-              <div className={styles.progressGrid} style={{ marginTop: '1.25rem' }}>
+              <div
+                className={styles.progressGrid}
+                style={{ marginTop: '1.25rem' }}
+              >
                 {overview.progress.map((axis) => (
-                  <ProgressBar key={axis.id} label={axis.label} value={axis.coverage} />
+                  <ProgressBar
+                    key={axis.id}
+                    label={axis.label}
+                    value={axis.coverage}
+                  />
                 ))}
               </div>
               <div className={styles.grid3} style={{ marginTop: '1.25rem' }}>
                 <article className={styles.panel}>
-                  <p className={styles.phaseTag}>THINK</p>
+                  <p className={styles.phaseTag}>ДУМАТЬ</p>
                   <ul className={styles.topicList}>
                     {engineering.finalEngineerMap.think.map((item) => (
                       <li key={item} className={styles.topic}>
@@ -126,7 +223,7 @@ export function EngineeringPage({ onBack }: EngineeringPageProps) {
                   </ul>
                 </article>
                 <article className={styles.panel}>
-                  <p className={styles.phaseTag}>BUILD</p>
+                  <p className={styles.phaseTag}>СТРОИТЬ</p>
                   <ul className={styles.topicList}>
                     {engineering.finalEngineerMap.build.map((item) => (
                       <li key={item} className={styles.topic}>
@@ -136,7 +233,7 @@ export function EngineeringPage({ onBack }: EngineeringPageProps) {
                   </ul>
                 </article>
                 <article className={styles.panel}>
-                  <p className={styles.phaseTag}>OPERATE</p>
+                  <p className={styles.phaseTag}>ЭКСПЛУАТИРОВАТЬ</p>
                   <ul className={styles.topicList}>
                     {engineering.finalEngineerMap.operate.map((item) => (
                       <li key={item} className={styles.topic}>
@@ -148,111 +245,34 @@ export function EngineeringPage({ onBack }: EngineeringPageProps) {
               </div>
               <div className={styles.panel} style={{ marginTop: '1rem' }}>
                 <p className={`${styles.kicker} ${styles.ai}`}>
-                  AI Engineering → System → Evolution
+                  AI Engineering → Система → Эволюция
                 </p>
                 <div className={styles.journey}>
-                  {[...engineering.finalEngineerMap.ai, ...engineering.finalEngineerMap.beyond].map(
-                    (item) => (
-                      <span key={item} className={styles.chip}>
-                        {item}
-                      </span>
-                    ),
-                  )}
+                  {[
+                    ...engineering.finalEngineerMap.ai,
+                    ...engineering.finalEngineerMap.beyond,
+                  ].map((item) => (
+                    <span key={item} className={styles.chip}>
+                      {item}
+                    </span>
+                  ))}
                 </div>
               </div>
             </Reveal>
           </section>
 
-          <section id="months" className={styles.section} aria-labelledby="months-title">
-            <Reveal>
-              <h2 id="months-title" className={styles.sectionTitle}>
-                Months 13–18
-              </h2>
-              <p className={styles.sectionLead}>
-                Design → AI engineering → automation → product → leadership → autonomous system.
-              </p>
-              <div className={styles.month}>
-                {engineering.engineeringMonths.map((month) => (
-                  <article key={month.id} className={styles.panel}>
-                    <div className={styles.monthHead}>
-                      <span className={styles.monthNum}>MONTH {month.number + 12}</span>
-                      <h3 className={styles.nodeTitle}>{month.title}</h3>
-                    </div>
-                    <p className={styles.sectionLead}>{month.goal}</p>
-                    <div className={styles.themeGrid}>
-                      {month.themes.map((theme) => (
-                        <div key={theme.title}>
-                          <h4 className={styles.nodeTitle}>{theme.title}</h4>
-                          <ul className={styles.topicList}>
-                            {theme.topics.map((topic) => (
-                              <li key={topic} className={styles.topic}>
-                                {topic}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      ))}
-                    </div>
-                    <p className={styles.nodeShort} style={{ marginTop: '0.85rem' }}>
-                      <strong className={styles.mono}>Output · </strong>
-                      {month.output}
-                    </p>
-                    <div className={styles.themeGrid} style={{ marginTop: '1rem' }}>
-                      {month.missionIds.map((id) => {
-                        const mission = engineering.engineeringMissionById[id];
-                        return mission ? <MissionCard key={id} mission={mission} /> : null;
-                      })}
-                    </div>
-                  </article>
-                ))}
-              </div>
-              <div className={styles.splitStack} style={{ marginTop: '1.25rem' }}>
-                <div className={styles.panel}>
-                  <p className={styles.kicker}>Scale thinking</p>
-                  <div className={styles.chain}>
-                    {engineering.scaleSteps.map((step) => (
-                      <div key={step} className={styles.chainStep}>
-                        {step}
-                      </div>
-                    ))}
-                  </div>
-                  <ul className={styles.topicList} style={{ marginTop: '0.75rem' }}>
-                    {engineering.scaleChanges.map((item) => (
-                      <li key={item} className={styles.topic}>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div className={styles.panel}>
-                  <p className={styles.kicker}>Failure-first</p>
-                  <div className={styles.journey}>
-                    {engineering.failureModes.map((mode) => (
-                      <span key={mode} className={styles.chip}>
-                        {mode}
-                      </span>
-                    ))}
-                  </div>
-                  <div className={styles.chain} style={{ marginTop: '0.75rem' }}>
-                    {engineering.failureLoop.map((step) => (
-                      <div key={step} className={styles.chainStep}>
-                        {step}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </Reveal>
-          </section>
-
-          <section id="ai" className={styles.section} aria-labelledby="ai-title">
+          <section
+            id="ai"
+            className={styles.section}
+            aria-labelledby="ai-title"
+          >
             <Reveal>
               <h2 id="ai-title" className={styles.sectionTitle}>
-                AI engineering
+                AI-инженерия
               </h2>
               <div className={styles.splitStack}>
                 <div className={styles.panel}>
-                  <p className={styles.kicker}>AI stack</p>
+                  <p className={styles.kicker}>AI-стек</p>
                   <div className={styles.chain}>
                     {engineering.aiStack.map((step) => (
                       <div key={step} className={styles.chainStep}>
@@ -262,7 +282,7 @@ export function EngineeringPage({ onBack }: EngineeringPageProps) {
                   </div>
                 </div>
                 <div className={styles.panel}>
-                  <p className={styles.kicker}>Agent vs workflow</p>
+                  <p className={styles.kicker}>Агент vs workflow</p>
                   <div className={styles.ladder}>
                     {engineering.agentVsWorkflow.map((step) => (
                       <div key={step} className={styles.ladderStep}>
@@ -276,7 +296,7 @@ export function EngineeringPage({ onBack }: EngineeringPageProps) {
                 className={`${styles.panel} ${styles.panelGlow}`}
                 style={{ marginTop: '1.25rem' }}
               >
-                <p className={styles.kicker}>Human control model</p>
+                <p className={styles.kicker}>Модель человеческого контроля</p>
                 <p className={styles.sectionLead}>
                   Чем сильнее AI, тем выше требования к человеческому пониманию.
                 </p>
@@ -288,13 +308,20 @@ export function EngineeringPage({ onBack }: EngineeringPageProps) {
                     </span>
                   ))}
                 </div>
-                <p className={styles.nodeShort} style={{ marginTop: '0.85rem' }}>
-                  AI EXECUTION ████████████████████ — under human judgement.
+                <p
+                  className={styles.nodeShort}
+                  style={{ marginTop: '0.85rem' }}
+                >
+                  AI EXECUTION ████████████████████ — под человеческим
+                  суждением.
                 </p>
               </div>
-              <div className={styles.splitStack} style={{ marginTop: '1.25rem' }}>
+              <div
+                className={styles.splitStack}
+                style={{ marginTop: '1.25rem' }}
+              >
                 <div className={styles.panel}>
-                  <p className={styles.kicker}>Verification architecture</p>
+                  <p className={styles.kicker}>Архитектура верификации</p>
                   <div className={styles.chain}>
                     {engineering.verificationArchitecture.map((step) => (
                       <div key={step} className={styles.chainStep}>
@@ -304,17 +331,26 @@ export function EngineeringPage({ onBack }: EngineeringPageProps) {
                   </div>
                 </div>
                 <div className={styles.panel}>
-                  <p className={styles.kicker}>AI quality score · workflow demo</p>
+                  <p className={styles.kicker}>
+                    Оценка качества AI · демо workflow
+                  </p>
                   <div className={styles.progressGrid}>
                     {overview.aiQuality.map((axis) => (
-                      <ProgressBar key={axis.id} label={axis.label} value={axis.coverage} />
+                      <ProgressBar
+                        key={axis.id}
+                        label={axis.label}
+                        value={axis.coverage}
+                      />
                     ))}
                   </div>
                 </div>
               </div>
-              <div className={styles.splitStack} style={{ marginTop: '1.25rem' }}>
+              <div
+                className={styles.splitStack}
+                style={{ marginTop: '1.25rem' }}
+              >
                 <div className={styles.panel}>
-                  <p className={styles.kicker}>Total system cost</p>
+                  <p className={styles.kicker}>Полная стоимость системы</p>
                   <div className={styles.chain}>
                     {engineering.systemCost.map((step) => (
                       <div key={step} className={styles.chainStep}>
@@ -324,7 +360,7 @@ export function EngineeringPage({ onBack }: EngineeringPageProps) {
                   </div>
                 </div>
                 <div className={styles.panel}>
-                  <p className={styles.kicker}>AI leverage</p>
+                  <p className={styles.kicker}>AI-рычаг</p>
                   <div className={styles.chain}>
                     {engineering.aiLeverageLoop.map((step) => (
                       <div key={step} className={styles.chainStep}>
@@ -335,7 +371,7 @@ export function EngineeringPage({ onBack }: EngineeringPageProps) {
                 </div>
               </div>
               <div className={styles.panel} style={{ marginTop: '1.25rem' }}>
-                <p className={styles.kicker}>Attention is the bottleneck</p>
+                <p className={styles.kicker}>Внимание — узкое место</p>
                 <div className={styles.chain}>
                   {engineering.attentionTrap.map((step) => (
                     <div key={step} className={styles.chainStep}>
@@ -343,25 +379,38 @@ export function EngineeringPage({ onBack }: EngineeringPageProps) {
                     </div>
                   ))}
                 </div>
-                <div className={styles.progressGrid} style={{ marginTop: '1rem' }}>
+                <div
+                  className={styles.progressGrid}
+                  style={{ marginTop: '1rem' }}
+                >
                   {overview.attentionLoad.map((axis) => (
-                    <ProgressBar key={axis.id} label={axis.label} value={axis.coverage} />
+                    <ProgressBar
+                      key={axis.id}
+                      label={axis.label}
+                      value={axis.coverage}
+                    />
                   ))}
                 </div>
               </div>
             </Reveal>
           </section>
 
-          <section id="os" className={styles.section} aria-labelledby="os-title">
+          <section
+            id="os"
+            className={styles.section}
+            aria-labelledby="os-title"
+          >
             <Reveal>
               <h2 id="os-title" className={styles.sectionTitle}>
-                Personal Engineering OS
+                Личная Engineering OS
               </h2>
               <p className={styles.sectionLead}>
-                Rules + Skills + Agents + Commands + Hooks + MCP + Docs + Automation — organized
-                environment, not chaos prompts.
+                Rules + Skills + Agents + Commands + Hooks + MCP + Docs +
+                Automation — организованная среда, а не хаос промптов.
               </p>
-              <div className={styles.centerEngineer}>{engineering.engineeringOsMap.center}</div>
+              <div className={styles.centerEngineer}>
+                {engineering.engineeringOsMap.center}
+              </div>
               <div className={styles.journey}>
                 {engineering.engineeringOsMap.pillars.map((pillar) => (
                   <span key={pillar} className={styles.chip}>
@@ -376,14 +425,20 @@ export function EngineeringPage({ onBack }: EngineeringPageProps) {
                   </li>
                 ))}
               </ul>
-              <div className={styles.themeGrid} style={{ marginTop: '1.25rem' }}>
+              <div
+                className={styles.themeGrid}
+                style={{ marginTop: '1.25rem' }}
+              >
                 {engineering.engineeringSkills.map((skill) => (
                   <article key={skill.id} className={styles.panel}>
                     <h3 className={styles.nodeTitle}>{skill.title}</h3>
                     <p className={styles.nodeShort}>{skill.description}</p>
                     <span className={styles.skillStatus}>
-                      {engineering.engineeringSkillStatusById[skill.id] ?? 'available'} ·{' '}
-                      {skill.level}
+                      {formatSkillStatus(
+                        engineering.engineeringSkillStatusById[skill.id] ??
+                          'available',
+                      )}{' '}
+                      · {skill.level}
                     </span>
                   </article>
                 ))}
@@ -391,14 +446,18 @@ export function EngineeringPage({ onBack }: EngineeringPageProps) {
             </Reveal>
           </section>
 
-          <section id="capstone" className={styles.section} aria-labelledby="capstone-title">
+          <section
+            id="capstone"
+            className={styles.section}
+            aria-labelledby="capstone-title"
+          >
             <Reveal>
               <h2 id="capstone-title" className={styles.sectionTitle}>
-                Capstone · real product
+                Capstone · реальный продукт
               </h2>
               <p className={styles.sectionLead}>
-                Самостоятельно выбрать проблему. Не tutorial project. Цикл не заканчивается на
-                deploy.
+                Самостоятельно выбрать проблему. Не tutorial project. Цикл не
+                заканчивается на deploy.
               </p>
               <div className={styles.themeGrid}>
                 {engineering.capstoneRequirements.map((block) => (
@@ -415,7 +474,7 @@ export function EngineeringPage({ onBack }: EngineeringPageProps) {
                 ))}
               </div>
               <div className={styles.panel} style={{ marginTop: '1.25rem' }}>
-                <p className={styles.kicker}>Development loop</p>
+                <p className={styles.kicker}>Цикл разработки</p>
                 <div className={styles.journey}>
                   {engineering.capstoneLoop.map((step) => (
                     <span key={step} className={styles.chip}>
@@ -425,7 +484,9 @@ export function EngineeringPage({ onBack }: EngineeringPageProps) {
                 </div>
               </div>
               <div className={styles.panel} style={{ marginTop: '1.25rem' }}>
-                <p className={styles.kicker}>Proposed AI team — decide who is necessary</p>
+                <p className={styles.kicker}>
+                  Предлагаемая AI-команда — реши, кто нужен
+                </p>
                 <div className={styles.journey}>
                   {engineering.proposedAgents.map((agent) => (
                     <span key={agent} className={styles.chip}>
@@ -436,16 +497,22 @@ export function EngineeringPage({ onBack }: EngineeringPageProps) {
               </div>
               {engineering.engineeringMissionById['eng-capstone'] ? (
                 <div style={{ marginTop: '1.25rem' }}>
-                  <MissionCard mission={engineering.engineeringMissionById['eng-capstone']} />
+                  <MissionCard
+                    mission={engineering.engineeringMissionById['eng-capstone']}
+                  />
                 </div>
               ) : null}
               {engineering.engineeringMissionById['eng-final-boss'] ? (
                 <div style={{ marginTop: '1.25rem' }}>
-                  <MissionCard mission={engineering.engineeringMissionById['eng-final-boss']} />
+                  <MissionCard
+                    mission={
+                      engineering.engineeringMissionById['eng-final-boss']
+                    }
+                  />
                 </div>
               ) : null}
               <div className={styles.panel} style={{ marginTop: '1.25rem' }}>
-                <p className={styles.kicker}>Final Boss pipeline</p>
+                <p className={styles.kicker}>Пайплайн Final Boss</p>
                 <div className={styles.chain}>
                   {engineering.finalBossFlow.map((step) => (
                     <div key={step} className={styles.chainStep}>
@@ -453,10 +520,13 @@ export function EngineeringPage({ onBack }: EngineeringPageProps) {
                     </div>
                   ))}
                 </div>
-                <div className={styles.journey} style={{ marginTop: '0.85rem' }}>
+                <div
+                  className={styles.journey}
+                  style={{ marginTop: '0.85rem' }}
+                >
                   {engineering.humanControl.map((step) => (
                     <span key={step} className={styles.chip}>
-                      Human · {step}
+                      Человек · {step}
                     </span>
                   ))}
                 </div>
@@ -464,10 +534,14 @@ export function EngineeringPage({ onBack }: EngineeringPageProps) {
             </Reveal>
           </section>
 
-          <section id="autonomy" className={styles.section} aria-labelledby="autonomy-title">
+          <section
+            id="autonomy"
+            className={styles.section}
+            aria-labelledby="autonomy-title"
+          >
             <Reveal>
               <h2 id="autonomy-title" className={styles.sectionTitle}>
-                Autonomy & maturity
+                Автономия и зрелость
               </h2>
               <div className={styles.ladder}>
                 {engineering.autonomyLevels.map((item) => (
@@ -475,13 +549,15 @@ export function EngineeringPage({ onBack }: EngineeringPageProps) {
                     key={item.level}
                     className={`${styles.ladderStep} ${item.level < 5 ? '' : styles.ladderStepDim}`}
                   >
-                    LEVEL {item.level} · {item.title}
-                    {item.level >= 5 ? ' · Phase III target (risk-gated)' : ''}
+                    УРОВЕНЬ {item.level} · {item.title}
+                    {item.level >= 5
+                      ? ' · цель Phase III (с учётом риска)'
+                      : ''}
                   </div>
                 ))}
               </div>
               <div className={styles.panel} style={{ marginTop: '1.25rem' }}>
-                <p className={styles.kicker}>Engineering maturity</p>
+                <p className={styles.kicker}>Инженерная зрелость</p>
                 <div className={styles.chain}>
                   {[...engineering.maturityLadder].reverse().map((step) => (
                     <div key={step} className={styles.chainStep}>
@@ -498,7 +574,7 @@ export function EngineeringPage({ onBack }: EngineeringPageProps) {
                 ))}
               </div>
               <div className={styles.panel} style={{ marginTop: '1.25rem' }}>
-                <p className={styles.kicker}>Red flags</p>
+                <p className={styles.kicker}>Красные флаги</p>
                 <div className={styles.flags}>
                   {engineering.engineeringRedFlags.map((flag) => (
                     <span key={flag.id} className={styles.flag}>
@@ -510,22 +586,34 @@ export function EngineeringPage({ onBack }: EngineeringPageProps) {
             </Reveal>
           </section>
 
-          <section id="frontier" className={styles.section} aria-labelledby="frontier-title">
+          <section
+            id="frontier"
+            className={styles.section}
+            aria-labelledby="frontier-title"
+          >
             <Reveal>
               <h2 id="frontier-title" className={styles.sectionTitle}>
-                Knowledge frontier
+                Граница знаний
               </h2>
               <p className={styles.sectionLead}>
-                Roadmap заканчивается. Engineering — нет. Технология постоянно меняется.
+                Roadmap заканчивается. Engineering — нет. Технология постоянно
+                меняется.
               </p>
               <div className={styles.progressGrid}>
                 {engineering.knowledgeFrontier.map((axis) => (
-                  <ProgressBar key={axis.id} label={axis.label} value={axis.coverage} />
+                  <ProgressBar
+                    key={axis.id}
+                    label={axis.label}
+                    value={axis.coverage}
+                  />
                 ))}
               </div>
-              <div className={styles.splitStack} style={{ marginTop: '1.25rem' }}>
+              <div
+                className={styles.splitStack}
+                style={{ marginTop: '1.25rem' }}
+              >
                 <div className={styles.panel}>
-                  <p className={styles.kicker}>How to continue</p>
+                  <p className={styles.kicker}>Как продолжать</p>
                   <div className={styles.chain}>
                     {engineering.continueMethod.map((step) => (
                       <div key={step} className={styles.chainStep}>
@@ -543,7 +631,10 @@ export function EngineeringPage({ onBack }: EngineeringPageProps) {
                       </span>
                     ))}
                   </div>
-                  <ul className={styles.topicList} style={{ marginTop: '0.75rem' }}>
+                  <ul
+                    className={styles.topicList}
+                    style={{ marginTop: '0.75rem' }}
+                  >
                     {engineering.learnFramework.map((f) => (
                       <li key={f} className={styles.topic}>
                         {f}
@@ -552,7 +643,10 @@ export function EngineeringPage({ onBack }: EngineeringPageProps) {
                   </ul>
                 </div>
               </div>
-              <div className={styles.themeGrid} style={{ marginTop: '1.25rem' }}>
+              <div
+                className={styles.themeGrid}
+                style={{ marginTop: '1.25rem' }}
+              >
                 {Object.entries(engineering.techRadar).map(([ring, items]) => (
                   <article key={ring} className={styles.panel}>
                     <h3 className={styles.nodeTitle}>{ring}</h3>
@@ -569,17 +663,23 @@ export function EngineeringPage({ onBack }: EngineeringPageProps) {
             </Reveal>
           </section>
 
-          <section id="matrix" className={styles.section} aria-labelledby="matrix-title">
+          <section
+            id="matrix"
+            className={styles.section}
+            aria-labelledby="matrix-title"
+          >
             <Reveal>
               <h2 id="matrix-title" className={styles.sectionTitle}>
-                Capability matrix
+                Матрица способностей
               </h2>
-              <p className={styles.sectionLead}>Главный визуальный итог трёх фаз.</p>
+              <p className={styles.sectionLead}>
+                Главный визуальный итог трёх фаз.
+              </p>
               <div className={styles.scrollX}>
                 <table className={styles.matrix}>
                   <thead>
                     <tr>
-                      <th scope="col">Capability</th>
+                      <th scope="col">Способность</th>
                       <th scope="col">Foundation</th>
                       <th scope="col">Integration</th>
                       <th scope="col">Engineering</th>
@@ -598,7 +698,7 @@ export function EngineeringPage({ onBack }: EngineeringPageProps) {
                 </table>
               </div>
               <div className={styles.panel} style={{ marginTop: '1.25rem' }}>
-                <p className={styles.kicker}>Final AI engineering loop</p>
+                <p className={styles.kicker}>Итоговый цикл AI engineering</p>
                 <div className={styles.chain}>
                   {engineering.finalAiLoop.map((step) => (
                     <div key={step} className={styles.chainStep}>
@@ -618,9 +718,13 @@ export function EngineeringPage({ onBack }: EngineeringPageProps) {
             </Reveal>
           </section>
 
-          <section id="finale" className={styles.section} aria-labelledby="finale-title">
+          <section
+            id="finale"
+            className={styles.section}
+            aria-labelledby="finale-title"
+          >
             <Reveal>
-              <p className={styles.kicker}>∞ Continuous engineering</p>
+              <p className={styles.kicker}>∞ Непрерывная инженерия</p>
               <h2
                 id="finale-title"
                 className={styles.display}
@@ -639,7 +743,11 @@ export function EngineeringPage({ onBack }: EngineeringPageProps) {
               </div>
               <div style={{ marginTop: '2.5rem' }}>
                 {overview.finale.slogans.map((line) => (
-                  <p key={line} className={styles.quote} style={{ marginBottom: '0.75rem' }}>
+                  <p
+                    key={line}
+                    className={styles.quote}
+                    style={{ marginBottom: '0.75rem' }}
+                  >
                     {line}
                   </p>
                 ))}
@@ -652,16 +760,26 @@ export function EngineeringPage({ onBack }: EngineeringPageProps) {
                 ))}
               </div>
               <div className={styles.ctaRow}>
-                <button type="button" className={styles.buttonGhost} onClick={onBack}>
-                  Back to phases
+                <button
+                  type="button"
+                  className={styles.buttonGhost}
+                  onClick={onOpenMap}
+                >
+                  К обзору плана
                 </button>
               </div>
             </Reveal>
           </section>
         </div>
       </div>
-    </div>
+    </AtlasFrame>
   );
+}
+
+function formatSkillStatus(status: string): string {
+  if (status === 'available') return 'доступно';
+  if (status === 'locked') return 'закрыто';
+  return status;
 }
 
 function ProgressBar({ label, value }: { label: string; value: number }) {

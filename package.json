@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "build:pages": "VITE_BASE=/${npm_package_name}/ tsc -b && VITE_BASE=/${npm_package_name}/ vite build",
+    "build:pages": "VITE_BASE=/${npm_package_name}/ tsc -b && VITE_BASE=/${npm_package_name}/ vite build && cp dist/index.html dist/404.html && touch dist/.nojekyll",
+    "deploy:pages": "npm run build:pages && npx --yes gh-pages -d dist --nojekyll -t -f -m \"deploy: GitHub Pages\"",
     "lint": "oxlint",
     "typecheck": "tsc -b --pretty false",
     "format": "prettier --write .",

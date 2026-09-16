@@ -1,15 +1,16 @@
-
 import { useState } from 'react';
 
-import { integration } from '@/domain/ai-roadmap';
-
+import { integration, productGuide } from '@/domain/ai-roadmap';
+import type { AtlasNavHandlers } from './AppChrome';
+import { AtlasFrame } from './AppChrome';
 import styles from './atlas.module.css';
 import { MissionCard } from './MissionCard';
+import { collectMonthMissions } from './collectMonthMissions';
+import { MonthPlan } from './MonthPlan';
 import { Reveal } from './Reveal';
 import { useActiveSection } from './useActiveSection';
 
-type IntegrationPageProps = {
-  readonly onBack: () => void;
+type IntegrationPageProps = AtlasNavHandlers & {
   readonly onEnterPhaseIII?: () => void;
   readonly phaseIIIReady?: boolean;
 };
@@ -17,26 +18,32 @@ type IntegrationPageProps = {
 const NAV_IDS = integration.navSections.map((s) => s.id);
 
 export function IntegrationPage({
-  onBack,
+  onOpenMap,
+  onOpenPhase,
+  onOpenLoop,
+  onOpenLabs,
   onEnterPhaseIII,
   phaseIIIReady = false,
 }: IntegrationPageProps) {
   const active = useActiveSection(NAV_IDS);
-  const [openContract, setOpenContract] = useState<string | null>('product-agent');
+  const [openContract, setOpenContract] = useState<string | null>(
+    'product-agent',
+  );
   const [openFailure, setOpenFailure] = useState<string | null>('db-down');
   const overview = integration.integrationOverview;
+  const guide = productGuide.phases.integration;
+  const nav = { onOpenMap, onOpenPhase, onOpenLoop, onOpenLabs };
 
   function scrollTo(id: string) {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document
+      .getElementById(id)
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   return (
-    <div className={styles.atlas} data-product="ai-roadmap" data-phase="integration">
+    <AtlasFrame current="integration" nav={nav}>
       <div className={styles.shell}>
-        <nav className={styles.nav} aria-label="Integration sections">
-          <button type="button" className={styles.backLink} onClick={onBack}>
-            ← Roadmap hub
-          </button>
+        <nav className={styles.nav} aria-label="Разделы этапа 2">
           {integration.navSections.map((section) => (
             <button
               key={section.id}
@@ -51,10 +58,7 @@ export function IntegrationPage({
         </nav>
 
         <div className={styles.main}>
-          <div className={styles.navMobile} aria-label="Integration sections">
-            <button type="button" className={styles.navLink} onClick={onBack}>
-              ← Hub
-            </button>
+          <div className={styles.navMobile} aria-label="Разделы этапа 2">
             {integration.navSections.map((section) => (
               <button
                 key={section.id}
@@ -69,32 +73,91 @@ export function IntegrationPage({
 
           <header id="hero" className={styles.section}>
             <Reveal>
-              <p className={styles.kicker}>Phase II · From skills to systems</p>
-              <h1 className={styles.display}>{overview.title}</h1>
-              <p className={styles.lead}>{overview.subtitle}</p>
-              <p className={styles.sublead}>{overview.lead}</p>
-              <div className={styles.stats} style={{ marginTop: '1.75rem' }}>
-                {overview.stats.map((stat) => (
-                  <div key={stat.label} className={styles.stat}>
-                    <span className={styles.statValue}>{stat.value}</span>
-                    <span className={styles.statLabel}>{stat.label}</span>
-                  </div>
-                ))}
+              <p className={styles.kicker}>{guide.eyebrow}</p>
+              <h1 className={styles.display}>{guide.title}</h1>
+              <p className={styles.lead}>{guide.thisPhase}</p>
+              <p className={styles.sublead}>{guide.forWhom}</p>
+              <p className={styles.callout}>
+                <strong>Сейчас сделай это. </strong>
+                {guide.startWith}
+              </p>
+              <div className={styles.ctaRow}>
+                <button
+                  type="button"
+                  className={styles.button}
+                  onClick={() => scrollTo('months')}
+                >
+                  К плану по месяцам
+                </button>
               </div>
             </Reveal>
           </header>
 
-          <section id="map" className={styles.section} aria-labelledby="map-title">
+          <section
+            id="months"
+            className={styles.section}
+            aria-labelledby="months-title"
+          >
             <Reveal>
-              <h2 id="map-title" className={styles.sectionTitle}>
-                Integration map
+              <h2 id="months-title" className={styles.sectionTitle}>
+                План на месяцы 7–12
               </h2>
               <p className={styles.sectionLead}>
-                Не список технологий — поток, который соединяет дисциплины. Над всем — AI
-                orchestration.
+                Открой текущий месяц, прочитай цель, сделай задание. Компромиссы
+                внизу — рамка мышления, не отдельный курс.
+              </p>
+              <div className={styles.month}>
+                {integration.integrationMonths.map((month, index) => (
+                  <MonthPlan
+                    key={month.id}
+                    month={month}
+                    displayNumber={month.number + 6}
+                    missions={collectMonthMissions(
+                      month,
+                      integration.integrationMissionById,
+                    )}
+                    defaultOpen={index === 0}
+                  />
+                ))}
+              </div>
+              <div
+                className={styles.themeGrid}
+                style={{ marginTop: '1.25rem' }}
+              >
+                {integration.integrationSkills.map((skill) => (
+                  <article key={skill.id} className={styles.panel}>
+                    <h3 className={styles.nodeTitle}>{skill.title}</h3>
+                    <p className={styles.nodeShort}>{skill.description}</p>
+                    <span className={styles.skillStatus}>
+                      {formatSkillStatus(
+                        integration.integrationSkillStatusById[skill.id] ??
+                          'available',
+                      )}{' '}
+                      · {skill.level}
+                    </span>
+                  </article>
+                ))}
+              </div>
+            </Reveal>
+          </section>
+
+          <section
+            id="map"
+            className={styles.section}
+            aria-labelledby="map-title"
+          >
+            <Reveal>
+              <h2 id="map-title" className={styles.sectionTitle}>
+                Карта интеграции
+              </h2>
+              <p className={styles.sectionLead}>
+                Не список технологий — поток, который соединяет дисциплины. Над
+                всем — AI оркестрация.
               </p>
               <div className={`${styles.panel} ${styles.panelGlow}`}>
-                <p className={`${styles.kicker} ${styles.ai}`}>AI ORCHESTRATION</p>
+                <p className={`${styles.kicker} ${styles.ai}`}>
+                  AI-ОРКЕСТРАЦИЯ
+                </p>
                 <div className={styles.chain}>
                   {overview.integrationFlow.map((step) => (
                     <div key={step} className={styles.chainStep}>
@@ -103,9 +166,12 @@ export function IntegrationPage({
                   ))}
                 </div>
               </div>
-              <div className={styles.splitStack} style={{ marginTop: '1.25rem' }}>
+              <div
+                className={styles.splitStack}
+                style={{ marginTop: '1.25rem' }}
+              >
                 <div className={styles.panel}>
-                  <p className={styles.kicker}>Engineer as orchestrator</p>
+                  <p className={styles.kicker}>Инженер как оркестратор</p>
                   <div className={styles.chain}>
                     {integration.engineerLoopV2.map((step) => (
                       <div key={step} className={styles.chainStep}>
@@ -115,7 +181,7 @@ export function IntegrationPage({
                   </div>
                 </div>
                 <div className={styles.panel}>
-                  <p className={styles.kicker}>Agent scale</p>
+                  <p className={styles.kicker}>Масштаб агентов</p>
                   <div className={styles.ladder}>
                     {integration.agentScale.map((step, index) => (
                       <div key={step} className={styles.ladderStep}>
@@ -126,10 +192,14 @@ export function IntegrationPage({
                 </div>
               </div>
               <div className={styles.panel} style={{ marginTop: '1.25rem' }}>
-                <p className={styles.kicker}>Roadmap coverage</p>
+                <p className={styles.kicker}>Покрытие роадмапа</p>
                 <div className={styles.progressGrid}>
                   {overview.progress.map((axis) => (
-                    <ProgressBar key={axis.id} label={axis.label} value={axis.coverage} />
+                    <ProgressBar
+                      key={axis.id}
+                      label={axis.label}
+                      value={axis.coverage}
+                    />
                   ))}
                 </div>
               </div>
@@ -145,7 +215,7 @@ export function IntegrationPage({
                   </div>
                 </article>
                 <article className={`${styles.panel} ${styles.panelGlow}`}>
-                  <p className={styles.phaseTag}>Phase II · now</p>
+                  <p className={styles.phaseTag}>Phase II · сейчас</p>
                   <div className={styles.chain}>
                     {integration.complexityMap.phaseII.map((item) => (
                       <div key={item} className={styles.chainStep}>
@@ -168,81 +238,20 @@ export function IntegrationPage({
             </Reveal>
           </section>
 
-          <section id="months" className={styles.section} aria-labelledby="months-title">
-            <Reveal>
-              <h2 id="months-title" className={styles.sectionTitle}>
-                Months 7–12
-              </h2>
-              <p className={styles.sectionLead}>
-                Каждый месяц — интеграционная цель. Engineering is trade-offs.
-              </p>
-              <div className={styles.journey} style={{ marginBottom: '1rem' }}>
-                {integration.tradeOffAxes.map((axis) => (
-                  <span key={axis} className={styles.chip}>
-                    {axis}
-                  </span>
-                ))}
-              </div>
-              <div className={styles.month}>
-                {integration.integrationMonths.map((month) => (
-                  <article key={month.id} className={styles.panel}>
-                    <div className={styles.monthHead}>
-                      <span className={styles.monthNum}>MONTH {month.number + 6}</span>
-                      <h3 className={styles.nodeTitle}>{month.title}</h3>
-                    </div>
-                    <p className={styles.sectionLead}>{month.goal}</p>
-                    <div className={styles.themeGrid}>
-                      {month.themes.map((theme) => (
-                        <div key={theme.title}>
-                          <h4 className={styles.nodeTitle}>{theme.title}</h4>
-                          <ul className={styles.topicList}>
-                            {theme.topics.map((topic) => (
-                              <li key={topic} className={styles.topic}>
-                                {topic}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      ))}
-                    </div>
-                    <p className={styles.nodeShort} style={{ marginTop: '0.85rem' }}>
-                      <strong className={styles.mono}>Output · </strong>
-                      {month.output}
-                    </p>
-                    <div className={styles.themeGrid} style={{ marginTop: '1rem' }}>
-                      {month.missionIds.map((id) => {
-                        const mission = integration.integrationMissionById[id];
-                        return mission ? <MissionCard key={id} mission={mission} /> : null;
-                      })}
-                    </div>
-                  </article>
-                ))}
-              </div>
-              <div className={styles.themeGrid} style={{ marginTop: '1.25rem' }}>
-                {integration.integrationSkills.map((skill) => (
-                  <article key={skill.id} className={styles.panel}>
-                    <h3 className={styles.nodeTitle}>{skill.title}</h3>
-                    <p className={styles.nodeShort}>{skill.description}</p>
-                    <span className={styles.skillStatus}>
-                      {integration.integrationSkillStatusById[skill.id] ?? 'available'} ·{' '}
-                      {skill.level}
-                    </span>
-                  </article>
-                ))}
-              </div>
-            </Reveal>
-          </section>
-
-          <section id="agents" className={styles.section} aria-labelledby="agents-title">
+          <section
+            id="agents"
+            className={styles.section}
+            aria-labelledby="agents-title"
+          >
             <Reveal>
               <h2 id="agents-title" className={styles.sectionTitle}>
-                AI engineering team
+                AI-инженерная команда
               </h2>
               <p className={styles.sectionLead}>
-                Human engineer orchestrates agents with contracts, boundaries, and verification —
-                not magic autonomy.
+                Человек-инженер оркестрирует агентов через контракты, границы и
+                верификацию — не магическую автономию.
               </p>
-              <div className={styles.centerEngineer}>Human Engineer</div>
+              <div className={styles.centerEngineer}>Человек-инженер</div>
               <div className={styles.journey}>
                 {integration.agentTeam.map((agent) => (
                   <span key={agent} className={styles.chip}>
@@ -251,7 +260,7 @@ export function IntegrationPage({
                 ))}
               </div>
               <div className={styles.panel} style={{ marginTop: '1.25rem' }}>
-                <p className={styles.kicker}>Handoff chain</p>
+                <p className={styles.kicker}>Цепочка передачи</p>
                 <div className={styles.chain}>
                   {integration.agentHandoff.map((step) => (
                     <div key={step} className={styles.chainStep}>
@@ -259,11 +268,18 @@ export function IntegrationPage({
                     </div>
                   ))}
                 </div>
-                <p className={styles.nodeShort} style={{ marginTop: '0.85rem' }}>
-                  Garbage in → garbage out. Context quality is engineering.
+                <p
+                  className={styles.nodeShort}
+                  style={{ marginTop: '0.85rem' }}
+                >
+                  Мусор на входе → мусор на выходе. Качество контекста — это
+                  инженерия.
                 </p>
               </div>
-              <div className={styles.agentGrid} style={{ marginTop: '1.25rem' }}>
+              <div
+                className={styles.agentGrid}
+                style={{ marginTop: '1.25rem' }}
+              >
                 {integration.agentContracts.map((contract) => {
                   const open = openContract === contract.id;
                   return (
@@ -272,22 +288,33 @@ export function IntegrationPage({
                         type="button"
                         className={`${styles.nodeButton} ${open ? styles.nodeButtonActive : ''}`}
                         aria-expanded={open}
-                        onClick={() => setOpenContract(open ? null : contract.id)}
+                        onClick={() =>
+                          setOpenContract(open ? null : contract.id)
+                        }
                       >
                         <h3 className={styles.nodeTitle}>{contract.role}</h3>
                         <p className={styles.nodeShort}>{contract.goal}</p>
                       </button>
                       {open ? (
-                        <div className={styles.panel} style={{ marginTop: '0.65rem' }}>
-                          <p className={styles.kicker}>Agent contract</p>
-                          <ContractLine label="INPUT" value={contract.input} />
-                          <ContractLine label="CONTEXT" value={contract.context} />
-                          <ContractLine label="OUTPUT" value={contract.output} />
+                        <div
+                          className={styles.panel}
+                          style={{ marginTop: '0.65rem' }}
+                        >
+                          <p className={styles.kicker}>Контракт агента</p>
+                          <ContractLine label="ВХОД" value={contract.input} />
+                          <ContractLine
+                            label="КОНТЕКСТ"
+                            value={contract.context}
+                          />
+                          <ContractLine label="ВЫХОД" value={contract.output} />
                           <p
                             className={styles.mono}
-                            style={{ fontSize: '0.72rem', marginTop: '0.75rem' }}
+                            style={{
+                              fontSize: '0.72rem',
+                              marginTop: '0.75rem',
+                            }}
                           >
-                            CONSTRAINTS
+                            ОГРАНИЧЕНИЯ
                           </p>
                           <ul className={styles.topicList}>
                             {contract.constraints.map((item) => (
@@ -298,9 +325,12 @@ export function IntegrationPage({
                           </ul>
                           <p
                             className={styles.mono}
-                            style={{ fontSize: '0.72rem', marginTop: '0.75rem' }}
+                            style={{
+                              fontSize: '0.72rem',
+                              marginTop: '0.75rem',
+                            }}
                           >
-                            QUALITY
+                            КАЧЕСТВО
                           </p>
                           <ul className={styles.checklist}>
                             {contract.qualityCriteria.map((item) => (
@@ -309,9 +339,12 @@ export function IntegrationPage({
                           </ul>
                           <p
                             className={styles.mono}
-                            style={{ fontSize: '0.72rem', marginTop: '0.75rem' }}
+                            style={{
+                              fontSize: '0.72rem',
+                              marginTop: '0.75rem',
+                            }}
                           >
-                            FAILURE
+                            СБОИ
                           </p>
                           <ul className={styles.checklist}>
                             {contract.failureConditions.map((item) => (
@@ -325,7 +358,7 @@ export function IntegrationPage({
                 })}
               </div>
               <div className={styles.panel} style={{ marginTop: '1.25rem' }}>
-                <p className={styles.kicker}>Visual progression</p>
+                <p className={styles.kicker}>Визуальная прогрессия</p>
                 <div className={styles.grid3}>
                   {integration.visualProgression.map((item) => (
                     <div key={item.stage}>
@@ -342,14 +375,18 @@ export function IntegrationPage({
             </Reveal>
           </section>
 
-          <section id="context" className={styles.section} aria-labelledby="context-title">
+          <section
+            id="context"
+            className={styles.section}
+            aria-labelledby="context-title"
+          >
             <Reveal>
               <h2 id="context-title" className={styles.sectionTitle}>
-                Context engineering & verification 2.0
+                Инженерия контекста и верификация 2.0
               </h2>
               <div className={styles.splitStack}>
                 <div className={styles.panel}>
-                  <p className={styles.kicker}>Performance formula</p>
+                  <p className={styles.kicker}>Формула производительности</p>
                   <div className={styles.journey}>
                     {integration.contextEngineeringModel.map((part) => (
                       <span key={part} className={styles.chip}>
@@ -357,7 +394,10 @@ export function IntegrationPage({
                       </span>
                     ))}
                   </div>
-                  <ul className={styles.topicList} style={{ marginTop: '0.85rem' }}>
+                  <ul
+                    className={styles.topicList}
+                    style={{ marginTop: '0.85rem' }}
+                  >
                     {integration.contextTopics.map((topic) => (
                       <li key={topic} className={styles.topic}>
                         {topic}
@@ -366,7 +406,9 @@ export function IntegrationPage({
                   </ul>
                 </div>
                 <div className={styles.panel}>
-                  <p className={styles.kicker}>Trust, but verify — systemic</p>
+                  <p className={styles.kicker}>
+                    Доверяй, но проверяй — системно
+                  </p>
                   <div className={styles.chain}>
                     {integration.verificationV2.map((step) => (
                       <div key={step} className={styles.chainStep}>
@@ -376,9 +418,12 @@ export function IntegrationPage({
                   </div>
                 </div>
               </div>
-              <div className={styles.splitStack} style={{ marginTop: '1.25rem' }}>
+              <div
+                className={styles.splitStack}
+                style={{ marginTop: '1.25rem' }}
+              >
                 <div className={styles.panel}>
-                  <p className={styles.kicker}>ADR template</p>
+                  <p className={styles.kicker}>Шаблон ADR</p>
                   <div className={styles.chain}>
                     {integration.adrTemplate.map((step) => (
                       <div key={step} className={styles.chainStep}>
@@ -388,7 +433,7 @@ export function IntegrationPage({
                   </div>
                 </div>
                 <div className={styles.panel}>
-                  <p className={styles.kicker}>Documentation set</p>
+                  <p className={styles.kicker}>Набор документации</p>
                   <ul className={styles.topicList}>
                     {integration.docTypes.map((doc) => (
                       <li key={doc} className={styles.topic}>
@@ -401,14 +446,18 @@ export function IntegrationPage({
             </Reveal>
           </section>
 
-          <section id="quality" className={styles.section} aria-labelledby="quality-title">
+          <section
+            id="quality"
+            className={styles.section}
+            aria-labelledby="quality-title"
+          >
             <Reveal>
               <h2 id="quality-title" className={styles.sectionTitle}>
-                Quality · security · performance
+                Качество · безопасность · производительность
               </h2>
               <div className={styles.splitStack}>
                 <div className={styles.panel}>
-                  <p className={styles.kicker}>Quality pipeline</p>
+                  <p className={styles.kicker}>Конвейер качества</p>
                   <div className={styles.chain}>
                     {integration.qualityPipeline.map((step) => (
                       <div key={step} className={styles.chainStep}>
@@ -418,7 +467,7 @@ export function IntegrationPage({
                   </div>
                 </div>
                 <div className={styles.panel}>
-                  <p className={styles.kicker}>Design system ladder</p>
+                  <p className={styles.kicker}>Лестница дизайн-системы</p>
                   <div className={styles.chain}>
                     {integration.designSystemLadder.map((step) => (
                       <div key={step} className={styles.chainStep}>
@@ -428,31 +477,40 @@ export function IntegrationPage({
                   </div>
                 </div>
               </div>
-              <div className={styles.themeGrid} style={{ marginTop: '1.25rem' }}>
-                {Object.entries(integration.securityLayers).map(([layer, items]) => (
-                  <article key={layer} className={styles.panel}>
-                    <h3 className={styles.nodeTitle}>{layer}</h3>
-                    <ul className={styles.topicList}>
-                      {items.map((item) => (
-                        <li key={item} className={styles.topic}>
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </article>
-                ))}
+              <div
+                className={styles.themeGrid}
+                style={{ marginTop: '1.25rem' }}
+              >
+                {Object.entries(integration.securityLayers).map(
+                  ([layer, items]) => (
+                    <article key={layer} className={styles.panel}>
+                      <h3 className={styles.nodeTitle}>{layer}</h3>
+                      <ul className={styles.topicList}>
+                        {items.map((item) => (
+                          <li key={item} className={styles.topic}>
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </article>
+                  ),
+                )}
               </div>
             </Reveal>
           </section>
 
-          <section id="automation" className={styles.section} aria-labelledby="auto-title">
+          <section
+            id="automation"
+            className={styles.section}
+            aria-labelledby="auto-title"
+          >
             <Reveal>
               <h2 id="auto-title" className={styles.sectionTitle}>
-                Automation & leverage
+                Автоматизация и рычаг
               </h2>
               <div className={styles.splitStack}>
                 <div className={styles.panel}>
-                  <p className={styles.kicker}>Decision ladder</p>
+                  <p className={styles.kicker}>Лестница решений</p>
                   <div className={styles.chain}>
                     {integration.automationDecision.map((step) => (
                       <div key={step} className={styles.chainStep}>
@@ -462,7 +520,7 @@ export function IntegrationPage({
                   </div>
                 </div>
                 <div className={styles.panel}>
-                  <p className={styles.kicker}>Automation map</p>
+                  <p className={styles.kicker}>Карта автоматизации</p>
                   <div className={styles.ladder}>
                     {integration.automationLadderV2.map((step, index) => (
                       <div
@@ -476,27 +534,36 @@ export function IntegrationPage({
                 </div>
               </div>
               <div className={styles.panel} style={{ marginTop: '1.25rem' }}>
-                <p className={styles.kicker}>Leverage dashboard</p>
+                <p className={styles.kicker}>Панель рычага</p>
                 <p className={styles.sectionLead}>
-                  Не оценка личности — степень автоматизации процесса. Цель Phase II: сдвигать
-                  работу вниз по шкале.
+                  Не оценка личности — степень автоматизации процесса. Цель
+                  Phase II: сдвигать работу вниз по шкале.
                 </p>
                 <div className={styles.progressGrid}>
                   {overview.leverage.map((axis) => (
-                    <ProgressBar key={axis.id} label={axis.label} value={axis.coverage} />
+                    <ProgressBar
+                      key={axis.id}
+                      label={axis.label}
+                      value={axis.coverage}
+                    />
                   ))}
                 </div>
               </div>
             </Reveal>
           </section>
 
-          <section id="failure" className={styles.section} aria-labelledby="failure-title">
+          <section
+            id="failure"
+            className={styles.section}
+            aria-labelledby="failure-title"
+          >
             <Reveal>
               <h2 id="failure-title" className={styles.sectionTitle}>
-                Break the system
+                Сломай систему
               </h2>
               <p className={styles.sectionLead}>
-                Failure lab: AI может симулировать incident — инженер проектирует detect → prevent.
+                Failure lab: AI может симулировать incident — инженер
+                проектирует detect → prevent.
               </p>
               <div className={styles.themeGrid}>
                 {integration.failureScenarios.map((scenario) => {
@@ -507,12 +574,17 @@ export function IntegrationPage({
                         type="button"
                         className={`${styles.nodeButton} ${open ? styles.nodeButtonActive : ''}`}
                         aria-expanded={open}
-                        onClick={() => setOpenFailure(open ? null : scenario.id)}
+                        onClick={() =>
+                          setOpenFailure(open ? null : scenario.id)
+                        }
                       >
                         <h3 className={styles.nodeTitle}>{scenario.title}</h3>
                       </button>
                       {open ? (
-                        <div className={styles.panel} style={{ marginTop: '0.65rem' }}>
+                        <div
+                          className={styles.panel}
+                          style={{ marginTop: '0.65rem' }}
+                        >
                           <div className={styles.chain}>
                             {scenario.questions.map((q) => (
                               <div key={q} className={styles.chainStep}>
@@ -529,14 +601,18 @@ export function IntegrationPage({
             </Reveal>
           </section>
 
-          <section id="capstone" className={styles.section} aria-labelledby="capstone-title">
+          <section
+            id="capstone"
+            className={styles.section}
+            aria-labelledby="capstone-title"
+          >
             <Reveal>
               <h2 id="capstone-title" className={styles.sectionTitle}>
-                Product v2 · multi-agent capstone
+                Product v2 · мультиагентный итог
               </h2>
               <p className={styles.sectionLead}>
-                Foundation product → production-like system. Не «заставить агентов сделать», а
-                надёжный процесс.
+                Foundation product → production-like system. Не «заставить
+                агентов сделать», а надёжный процесс.
               </p>
               <div className={styles.themeGrid}>
                 {integration.productV2Requirements.map((block) => (
@@ -553,7 +629,7 @@ export function IntegrationPage({
                 ))}
               </div>
               <div className={styles.panel} style={{ marginTop: '1.25rem' }}>
-                <p className={styles.kicker}>Multi-agent workflow</p>
+                <p className={styles.kicker}>Мультиагентный workflow</p>
                 <div className={styles.chain}>
                   {integration.multiAgentCapstoneFlow.map((step) => (
                     <div key={step} className={styles.chainStep}>
@@ -564,19 +640,27 @@ export function IntegrationPage({
               </div>
               {integration.integrationMissionById['int-capstone'] ? (
                 <div style={{ marginTop: '1.25rem' }}>
-                  <MissionCard mission={integration.integrationMissionById['int-capstone']} />
+                  <MissionCard
+                    mission={integration.integrationMissionById['int-capstone']}
+                  />
                 </div>
               ) : null}
             </Reveal>
           </section>
 
-          <section id="panel" className={styles.section} aria-labelledby="panel-title">
+          <section
+            id="panel"
+            className={styles.section}
+            aria-labelledby="panel-title"
+          >
             <Reveal>
               <h2 id="panel-title" className={styles.sectionTitle}>
-                Control panel & responsibility
+                Панель управления и ответственность
               </h2>
               <div className={`${styles.panel} ${styles.panelGlow}`}>
-                <p className={styles.kicker}>System health · demo infographic</p>
+                <p className={styles.kicker}>
+                  Здоровье системы · демо-инфографика
+                </p>
                 <div className={styles.stats}>
                   {integration.controlPanel.map((row) => (
                     <div key={row.label} className={styles.stat}>
@@ -587,16 +671,17 @@ export function IntegrationPage({
                 </div>
               </div>
               <div className={styles.panel} style={{ marginTop: '1.25rem' }}>
-                <p className={styles.kicker}>Human vs AI responsibility</p>
+                <p className={styles.kicker}>Ответственность человека vs AI</p>
                 <p className={styles.sectionLead}>
-                  Responsibility remains human even when execution becomes automated.
+                  Ответственность остаётся за человеком, даже когда исполнение
+                  автоматизировано.
                 </p>
                 <div className={styles.scrollX}>
                   <table className={styles.matrix}>
                     <thead>
                       <tr>
-                        <th scope="col">Area</th>
-                        <th scope="col">Human</th>
+                        <th scope="col">Область</th>
+                        <th scope="col">Человек</th>
                         <th scope="col">AI</th>
                       </tr>
                     </thead>
@@ -620,7 +705,7 @@ export function IntegrationPage({
                 ))}
               </div>
               <div className={styles.panel} style={{ marginTop: '1.25rem' }}>
-                <p className={styles.kicker}>Phase II red flags</p>
+                <p className={styles.kicker}>Красные флаги Phase II</p>
                 <div className={styles.flags}>
                   {integration.integrationRedFlags.map((flag) => (
                     <span key={flag.id} className={styles.flag}>
@@ -633,18 +718,28 @@ export function IntegrationPage({
                 className={`${styles.panel} ${styles.panelGlow}`}
                 style={{ marginTop: '1.25rem' }}
               >
-                <p className={styles.kicker}>Final Phase II state</p>
-                <h3 className={styles.sectionTitle}>{overview.finalState.title}</h3>
+                <p className={styles.kicker}>Итоговое состояние Phase II</p>
+                <h3 className={styles.sectionTitle}>
+                  {overview.finalState.title}
+                </h3>
                 <p className={styles.sectionLead}>{overview.finalState.note}</p>
-                <p className={styles.mono}>DEEP · {overview.finalState.deep}</p>
-                <div className={styles.journey} style={{ marginTop: '0.75rem' }}>
+                <p className={styles.mono}>
+                  ГЛУБОКО · {overview.finalState.deep}
+                </p>
+                <div
+                  className={styles.journey}
+                  style={{ marginTop: '0.75rem' }}
+                >
                   {overview.finalState.broad.map((item) => (
                     <span key={item} className={styles.chip}>
                       {item}
                     </span>
                   ))}
                 </div>
-                <div className={styles.journey} style={{ marginTop: '0.75rem' }}>
+                <div
+                  className={styles.journey}
+                  style={{ marginTop: '0.75rem' }}
+                >
                   {overview.finalState.ai.map((item) => (
                     <span key={item} className={styles.chip}>
                       {item}
@@ -655,7 +750,11 @@ export function IntegrationPage({
             </Reveal>
           </section>
 
-          <section id="transition" className={styles.section} aria-labelledby="transition-title">
+          <section
+            id="transition"
+            className={styles.section}
+            aria-labelledby="transition-title"
+          >
             <Reveal>
               <h2 id="transition-title" className={styles.sectionTitle}>
                 {overview.transition.title}
@@ -678,13 +777,21 @@ export function IntegrationPage({
                 >
                   {overview.transition.cta}
                 </button>
-                <button type="button" className={styles.buttonGhost} onClick={onBack}>
-                  Back to phases
+                <button
+                  type="button"
+                  className={styles.buttonGhost}
+                  onClick={onOpenMap}
+                >
+                  К обзору плана
                 </button>
               </div>
               <div style={{ marginTop: '2.5rem' }}>
                 {overview.philosophy.lines.map((line) => (
-                  <p key={line} className={styles.quote} style={{ marginBottom: '0.75rem' }}>
+                  <p
+                    key={line}
+                    className={styles.quote}
+                    style={{ marginBottom: '0.75rem' }}
+                  >
                     {line}
                   </p>
                 ))}
@@ -700,8 +807,14 @@ export function IntegrationPage({
           </section>
         </div>
       </div>
-    </div>
+    </AtlasFrame>
   );
+}
+
+function formatSkillStatus(status: string): string {
+  if (status === 'available') return 'доступно';
+  if (status === 'locked') return 'закрыто';
+  return status;
 }
 
 function ProgressBar({ label, value }: { label: string; value: number }) {
